@@ -11,6 +11,17 @@ function findInteractions(products, lang) {
   const has = (p, s) => p.activeIngredient && p.activeIngredient.includes(s);
   const out = [];
 
+  const decongest = products.filter((p) => has(p, "Phenylephrine") || has(p, "Oxymetazoline"));
+  if (decongest.length >= 2) {
+    out.push({
+      names: decongest.map((p) => p.name),
+      title: es ? "Doble Descongestionante" : "Double Decongestant",
+      detail: es
+        ? "Ambos contienen un descongestionante; juntos pueden subir la presión arterial y el ritmo cardíaco. Consulte a un farmacéutico."
+        : "Both contain a decongestant; together they can raise blood pressure and heart rate. Ask a pharmacist.",
+    });
+  }
+
   const nsaid = products.filter((p) => has(p, "NSAID"));
   if (nsaid.length >= 2) {
     out.push({

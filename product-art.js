@@ -235,10 +235,29 @@ const PRODUCT_ART_SHAPES = {
 
 let artUidCounter = 0;
 
+// Brand logos in assets/logos; an item without one keeps its drawn packaging.
+const PRODUCT_LOGOS = {"coldpack": "coldpack.png", "acetaminophen": "acetaminophen.png", "antacid": "antacid.png", "antidiarrheal": "antidiarrheal.png", "antihistamine": "antihistamine.png", "aspirin": "aspirin.png", "bandaid": "bandaid.png", "coldflu": "coldflu.png", "coughdrops": "coughdrops.png", "decongestant": "decongestant.svg", "electrolyte": "electrolyte.png", "gauze": "gauze.png", "heatpatch": "heatpatch.svg", "ibuprofen": "ibuprofen.png", "motionsickness": "motionsickness.png", "ointment": "ointment.png", "pads": "pads.png", "patch": "patch.webp", "periodrelief": "periodrelief.png", "pregnancytest": "pregnancytest.png", "sanitizer": "sanitizer.png", "sunscreen": "sunscreen.svg", "tampons": "tampons.png"};
+// No logo found for this one: the brand's name in plain type, not an imitation of its logo.
+const PRODUCT_BRANDS = {};
+// White or yellow marks that would vanish on the shared white background; shown solid black (see .logo-mono).
+const MONO_LOGOS = new Set(["ibuprofen", "pads", "periodrelief"]);
 function productArtSvg(product) {
+  if (PRODUCT_LOGOS[product.id]) return `<img class="product-logo${MONO_LOGOS.has(product.id) ? " logo-mono" : ""}" src="assets/logos/${PRODUCT_LOGOS[product.id]}?v=2" alt="${product.name} logo" />`;
+  if (PRODUCT_BRANDS[product.id]) return `<div class="product-wordmark">${PRODUCT_BRANDS[product.id]}</div>`;
   const palette = CATEGORY_TINTS[product.category] || DEFAULT_TINT;
   const inner = ICONS[product.icon] || ICONS.pill;
   const builder = PRODUCT_ART_SHAPES[product.shape] || PRODUCT_ART_SHAPES.bottle;
   const uid = (product.id || "art") + "-" + (artUidCounter++);
   return `<svg class="product-art" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">${builder(palette.band, palette.cap, inner, uid)}</svg>`;
 }
+
+// A logo that fails to load gets one retry, then the brand's name, so a tile is never left blank.
+document.addEventListener("error", (e) => {
+  const img = e.target;
+  if (!img.classList || !img.classList.contains("product-logo")) return;
+  if (!img.dataset.retried) { img.dataset.retried = "1"; setTimeout(() => { img.src = img.src.split("?")[0] + "?v=2&retry=1"; }, 500); return; }
+  const word = document.createElement("div");
+  word.className = "product-wordmark";
+  word.textContent = img.alt.replace(/ logo$/, "");
+  img.replaceWith(word);
+}, true);

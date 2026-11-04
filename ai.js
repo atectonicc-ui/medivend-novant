@@ -26,9 +26,9 @@ function phraseMatches(normalizedText, phrase) {
 function classify(text) {
   const t = normalize(text);
 
-  if (EMERGENCY_KEYWORDS.some((kw) => phraseMatches(t, kw))) {
-    return { type: "emergency" };
-  }
+  // Shared with the AI Assistant so search and chat can never disagree on a red flag.
+  const flag = typeof redFlag === "function" ? redFlag(text) : null;
+  if (flag) return { type: "emergency", kind: flag.kind };
 
   if (PRESCRIPTION_KEYWORDS.some((kw) => phraseMatches(t, kw))) {
     return { type: "not_equipped" };
@@ -46,16 +46,4 @@ function classify(text) {
   }
 
   return { type: "products", products: scored.slice(0, 3).map((s) => s.product) };
-}
-
-function friendlyIntro(products) {
-  const es = currentLang === "es";
-  if (products.length === 1) {
-    return es
-      ? `Esto debería ayudar: ${products[0].name}.`
-      : `Here's something that should help: ${products[0].name}.`;
-  }
-  return es
-    ? `Un par de opciones que deberían ayudar: ${products.map((p) => p.name).join(", ")}.`
-    : `A couple of options that should help: ${products.map((p) => p.name).join(", ")}.`;
 }

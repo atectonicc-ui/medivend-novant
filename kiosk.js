@@ -28,7 +28,7 @@ function setIcon(id, kind) {
   ["disasterLangIcon", "globe"], ["disasterA11yIcon", "access"],
   ["toastIcon", "check"], ["dispenseIcon", "pill"],
   ["aabIcon", "chat"], ["aabChevron", "chevronRight"], ["aiChatCloseIcon", "close"],
-  ["chatMicIcon", "mic"], ["chatSendIcon", "chevronRight"], ["careBackIcon", "chevronLeft"],
+  ["chatMicIcon", "mic"], ["chatSendIcon", "chevronRight"], ["careBackIcon", "chevronLeft"], ["aboutBackIcon", "chevronLeft"],
 ].forEach(([id, kind]) => setIcon(id, kind));
 
 // ============================================================
@@ -74,12 +74,16 @@ setInterval(updateClock, 1000);
 const toastEl = document.getElementById("toast");
 const toastTextEl = document.getElementById("toastText");
 let toastTimer = null;
-function showToast(text) {
+function showToast(text, warn) {
   toastTextEl.textContent = text;
+  toastEl.classList.toggle("warn", !!warn);
   toastEl.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2200);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), warn ? 6000 : 2200);
 }
+
+// The kiosk's own English/Spanish picker for short UI strings (i18n.js holds the longer ones).
+const L = (en, es) => (currentLang === "es" ? es : en);
 
 // ============================================================
 // Cart state
@@ -138,6 +142,9 @@ function findInStockAlternative(products) {
   return products.find(isAvailable) || null;
 }
 
+// Escape anything interpolated into innerHTML (catalog data is static today, but don't rely on it).
+function esc(v) { return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
 function money(n) { return "$" + n.toFixed(2); }
 function findProduct(id) { return PRODUCTS.find((p) => p.id === id); }
 function cartItems() { return cart.map((c) => ({ product: findProduct(c.id), qty: c.qty })).filter((c) => c.product); }
@@ -148,9 +155,15 @@ function cartSubtotal() { return cartItems().reduce((sum, c) => sum + c.product.
 // temperature-locked, so no code path can sneak an unavailable item into an order.
 function addToCart(product, qty) {
   if (!isAvailable(product)) return false;
+  // High-risk medicines are capped per order, like a pharmacy counter limit.
+  const max = product.highRisk ? 2 : 10;
   const existing = cart.find((c) => c.id === product.id);
-  if (existing) existing.qty = Math.min(existing.qty + qty, 10);
-  else cart.push({ id: product.id, qty: Math.min(qty, 10) });
+  if (existing && existing.qty >= max) {
+    showToast(L(`Limit ${max} per order for ${product.name}`, `Límite de ${max} por pedido para ${product.name}`));
+    return false;
+  }
+  if (existing) existing.qty = Math.min(existing.qty + qty, max);
+  else cart.push({ id: product.id, qty: Math.min(qty, max) });
   updateCartFooter();
   bumpCartBadges();
   return true;
@@ -174,7 +187,7 @@ function pruneUnavailableCart() {
 function syncCartWithAvailability() {
   const removed = pruneUnavailableCart();
   if (!removed.length) return;
-  showToast(`${removed.join(", ")} ${currentLang === "es" ? "ya no está disponible y se quitó del carrito" : "is no longer available and was removed from your cart"}`);
+  showToast(`${removed.join(", ")} ${L("is no longer available and was removed from your cart", "ya no está disponible y se quitó del carrito")}`);
   if (checkoutScreen.classList.contains("show")) {
     if (cartCount() === 0) { closeCheckout(); return; }
     renderReviewList();
@@ -198,6 +211,12 @@ let ackedProductIds = new Set();
 let ackPending = null; // { product, mode, onConfirm, onCancel }
 let ackChecked = false;
 
+// One label sentence per bullet; "ask a doctor first" / "do not use" lines in bold.
+function warningListHtml(text) {
+  return `<ul class="warn-list">${text.split(/(?<=\.)\s+(?=[A-ZÁÉÍÓÚ¿])/).map((x) =>
+    `<li${/\b(ask a doctor|do not use|consulte primero|no lo use|no la use)\b/i.test(x) ? ' class="key"' : ""}>${esc(x)}</li>`).join("")}</ul>`;
+}
+
 function needsSafetyAck(product) {
   return !!product.highRisk && !ackedProductIds.has(product.id);
 }
@@ -219,12 +238,12 @@ function openSafetyAck(product, mode, onConfirm, onCancel) {
   document.getElementById("ackProductIcon").innerHTML = iconSvg(product.icon);
   document.getElementById("ackProductName").textContent = product.name;
   document.getElementById("ackProductDose").textContent = product.dosage;
-  document.getElementById("ackWarnings").textContent = product.warnings;
-  const hasAllergy = product.allergyAlert && !/^none known\.?$/i.test(product.allergyAlert.trim());
+  document.getElementById("ackWarnings").innerHTML = warningListHtml(product.warnings);
+  const hasAllergy = product.allergyAlert && !/^(none known|ninguna conocida)\.?$/i.test(product.allergyAlert.trim());
   document.getElementById("ackAllergyBlock").style.display = hasAllergy ? "" : "none";
   document.getElementById("ackAllergy").textContent = product.allergyAlert;
   // Label text is deliberately kept in English (see i18n.js); say so.
-  document.getElementById("ackNote").textContent = currentLang === "es" ? t("medInfoEnglishNote") : "";
+  document.getElementById("ackNote").textContent = "";
   document.getElementById("ackConfirmLabel").textContent = t(mode === "dispense" ? "ackConfirmDispense" : "ackConfirm");
   document.getElementById("ackConfirmLabel").removeAttribute("data-i18n");
   setAckChecked(false);
@@ -270,13 +289,24 @@ ackConfirmBtn.addEventListener("click", () => {
 // acknowledgment first when the item needs it. done(added) runs afterwards
 // (added === false if unavailable or the customer cancelled).
 function guardedAdd(product, qty, done) {
-  const finish = (ok) => { if (done) done(ok); };
+  const finish = (ok) => { if (done) done(ok); if (ok) warnNewInteraction(product); };
   if (!isAvailable(product)) { finish(false); return; }
   if (needsSafetyAck(product)) {
     openSafetyAck(product, "add", () => finish(addToCart(product, qty)), () => finish(false));
     return;
   }
   finish(addToCart(product, qty));
+}
+
+// Flag a clash the moment the second item lands in the cart, not at checkout.
+// Runs after the caller's own "Added" toast so this one wins.
+function warnNewInteraction(product) {
+  // Tapping Add on a card skips the chat, so check what they already told the assistant.
+  const clash = productConflicts(product, assistantMemory.profile || {});
+  if (clash.length) { showToast(`${product.name}: ${clash[0][L("en", "es")]}`, true); return; }
+  const prods = cart.map((c) => findProduct(c.id)).filter(Boolean);
+  const hit = findInteractions(prods, currentLang).find((c) => c.names.includes(product.name));
+  if (hit) showToast(`${hit.title}: ${hit.detail}`, true);
 }
 
 // Little pop on the cart counters whenever the count changes.
@@ -342,7 +372,7 @@ function tweenMoney(el, to) {
   if (reduce || from === to) { el.textContent = money(to); return; }
   const t0 = performance.now(), dur = 380;
   const step = (now) => {
-    const k = Math.min(1, (now - t0) / dur);
+    const k = Math.min(1, Math.max(0, (now - t0) / dur)); // rAF time can predate t0 → negative totals
     const eased = 1 - Math.pow(1 - k, 3);
     el.textContent = money(from + (to - from) * eased);
     if (k < 1) el._raf = requestAnimationFrame(step);
@@ -356,7 +386,23 @@ function itemsSelectedLabel(n) {
   return n === 1 ? "1 item selected" : `${n} items selected`;
 }
 
+// "Add" until it's in the cart, then "Add another · 2 in order" so nobody double-buys by accident.
+function addLabelFor(product) {
+  const line = cart.find((c) => c.id === product.id);
+  if (!line) return L("Add", "Agregar");
+  return L(`Add another · ${line.qty} in order`, `Agregar otro · ${line.qty} en pedido`);
+}
+function syncCardCartState() {
+  document.querySelectorAll("#productGrid .product-card").forEach((card) => {
+    const btn = card.querySelector(".add-btn");
+    const p = findProduct(card.dataset.id);
+    card.classList.toggle("in-cart", cart.some((c) => c.id === card.dataset.id));
+    if (p && btn && !btn.disabled && !btn.classList.contains("added")) btn.querySelector("span").textContent = addLabelFor(p);
+  });
+}
+
 function updateCartFooter() {
+  syncCardCartState();
   const n = cartCount();
   cartCountNum.textContent = String(n);
   cartCountLabel.textContent = itemsSelectedLabel(n);
@@ -425,6 +471,7 @@ function createProductCard(product) {
   const card = document.createElement("div");
   card.className = "product-card";
   card.dataset.cat = product.category;
+  card.dataset.id = product.id;
   const reason = unavailableReason(product);
 
   const badges = [];
@@ -433,18 +480,14 @@ function createProductCard(product) {
   } else if (product.ageRestricted) {
     badges.push(`<div class="card-badge age">${iconSvg("alert")}<span>${t("idRequired")}</span></div>`);
   }
-  if (product.highRisk && !reason) {
-    badges.push(`<div class="card-badge risk">${iconSvg("alert")}<span>${t("cautionBadge")}</span></div>`);
-  }
   if (reason === "stock") {
     badges.push(`<div class="card-badge oos"><span>${t("outOfStock")}</span></div>`);
   }
 
   card.innerHTML = `
-    <div class="card-art">${badges.join("")}${productArtSvg(product)}</div>
+    <div class="card-art"><div class="card-badges">${badges.join("")}</div>${productArtSvg(product)}</div>
     <div class="card-title"></div>
     <div class="card-dosage"></div>
-    ${product.activeIngredient ? `<div class="ingredient-tag"></div>` : ""}
     <div class="card-bottom-row">
       <div class="card-price"></div>
       <div class="stock-text"></div>
@@ -452,18 +495,16 @@ function createProductCard(product) {
   `;
   card.querySelector(".card-title").textContent = product.name;
   card.querySelector(".card-dosage").textContent = product.dosage;
-  if (product.activeIngredient) card.querySelector(".ingredient-tag").textContent = product.activeIngredient;
   card.querySelector(".card-price").textContent = money(product.price);
 
   const stockEl = card.querySelector(".stock-text");
   if (reason === "temp") { stockEl.textContent = t("tempLocked"); stockEl.classList.add("out"); }
   else if (reason === "stock") { stockEl.textContent = t("outOfStock"); stockEl.classList.add("out"); }
-  else if (product.ageRestricted) { stockEl.textContent = t("idRequired"); stockEl.classList.add("age"); }
   else { stockEl.textContent = t("inStock"); stockEl.classList.add("in"); }
 
   const addBtn = document.createElement("button");
   addBtn.className = "add-btn";
-  addBtn.innerHTML = iconSvg("plus") + `<span>${currentLang === "es" ? "Agregar" : "Add"}</span>`;
+  addBtn.innerHTML = iconSvg("plus") + `<span>${addLabelFor(product)}</span>`;
   if (reason) { addBtn.disabled = true; addBtn.querySelector("span").textContent = reason === "temp" ? t("tempLocked") : t("outOfStock"); }
   addBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -492,17 +533,14 @@ function renderGrid(products) {
 function quickAdd(product, btnEl) {
   guardedAdd(product, 1, (ok) => {
     if (!ok) return;
-    showToast(`${product.name} ${currentLang === "es" ? "agregado a su pedido" : "added to your order"}`);
+    showToast(`${product.name} ${L("added to your order", "agregado a su pedido")}`);
     flyToCart(btnEl, product);
-    // Rapid taps used to capture "Added" as the label to restore; always
-    // restore the real label instead.
-    const addLabel = currentLang === "es" ? "Agregar" : "Add";
     btnEl.classList.add("added");
     btnEl.innerHTML = iconSvg("check") + `<span>${t("added")}</span>`;
     clearTimeout(btnEl._restoreTimer);
     btnEl._restoreTimer = setTimeout(() => {
       btnEl.classList.remove("added");
-      btnEl.innerHTML = iconSvg("plus") + `<span>${addLabel}</span>`;
+      btnEl.innerHTML = iconSvg("plus") + `<span>${addLabelFor(product)}</span>`;
     }, 900);
   });
 }
@@ -532,11 +570,22 @@ function runSearch(query) {
     return;
   }
 
-  const result = classify(q);
   lastMode = { type: "search", value: q };
+  document.querySelectorAll(".filter-pill.active").forEach((el) => el.classList.remove("active"));
+  // Same engine as the AI chat, so Spanish, red flags, and "for my 4 year old" /
+  // "I'm on blood thinners" filtering behave identically in search.
+  const resp = Assistant.respond(q, assistantCtx());
+  if (resp.emergency) { triggerEmergency(resp.emergencyKind); return; }
+  const warnReply = resp.replies.find((r) => r.kind === "warn");
+  if (hasConditions(resp.cond || {}) || resp.lang === "es" || (warnReply && resp.care)) {
+    if (warnReply) showBanner(warnReply.text);
+    if (resp.products.length) { renderGrid(resp.products); return; }
+    if (warnReply) { renderGrid([]); noResultsEl.classList.remove("show"); return; }
+  }
 
+  const result = classify(q);
   if (result.type === "emergency") {
-    triggerEmergency();
+    triggerEmergency(result.kind);
     return;
   }
   if (result.type === "not_equipped") {
@@ -556,8 +605,8 @@ function runSearch(query) {
   if (alt) {
     const primary = result.products[0];
     const reasonText = unavailableReason(primary) === "temp"
-      ? (currentLang === "es" ? "está bloqueado temporalmente por temperatura" : "is temporarily temperature-locked")
-      : (currentLang === "es" ? "está agotado" : "is out of stock");
+      ? L("is temporarily temperature-locked", "está bloqueado temporalmente por temperatura")
+      : L("is out of stock", "está agotado");
     showBanner(
       currentLang === "es"
         ? `${primary.name} ${reasonText} ahora mismo — mostrando ${alt.name} como alternativa segura.`
@@ -593,6 +642,7 @@ if (SpeechRecognitionImpl) {
   recognizer.interimResults = false;
   recognizer.maxAlternatives = 1;
   recognizer.addEventListener("result", (e) => {
+    if (e.timeStamp && listenEpoch !== chatEpoch) return; // customer changed mid-utterance
     const transcript = e.results[0][0].transcript;
     if (voiceTarget === "chat") {
       chatInput.value = transcript;
@@ -609,12 +659,23 @@ if (SpeechRecognitionImpl) {
   chatMicBtn.title = "Voice input not supported in this browser";
 }
 
+let listenEpoch = 0;
+let voiceConsented = false; // per customer; reset in resetKiosk
 function startListening(target, btnEl) {
   if (!recognizer) return;
   if (listening) { recognizer.stop(); return; }
+  if (!voiceConsented) {
+    // Health symptoms are about to leave the device: say so before the first use.
+    voiceConsented = true;
+    showToast(currentLang === "es"
+      ? "La voz usa el servicio de Google y necesita internet. Toque el micrófono otra vez para hablar."
+      : "Voice uses Google's speech service and needs internet. Tap the mic again to speak.");
+    return;
+  }
+  listenEpoch = chatEpoch;
   voiceTarget = target;
   activeMicBtn = btnEl;
-  recognizer.lang = currentLang === "es" ? "es-ES" : "en-US";
+  recognizer.lang = L("en-US", "es-ES");
   listening = true;
   btnEl.classList.add("listening");
   try {
@@ -667,13 +728,13 @@ function addChatProductCards(products) {
 
     const btn = document.createElement("button");
     btn.className = "cp-add";
-    const addLabel = currentLang === "es" ? "Agregar" : "Add";
+    const addLabel = L("Add", "Agregar");
     btn.textContent = addLabel;
     if (!isAvailable(p)) btn.disabled = true;
     btn.addEventListener("click", () => {
       guardedAdd(p, 1, (ok) => {
         if (!ok) return;
-        showToast(`${p.name} ${currentLang === "es" ? "agregado a su pedido" : "added to your order"}`);
+        showToast(`${p.name} ${L("added to your order", "agregado a su pedido")}`);
         flyToCart(btn, p);
         btn.classList.add("added");
         btn.textContent = t("chatAdded");
@@ -721,6 +782,8 @@ function assistantCtx() {
     unavailableReason,
     lastProduct: assistantMemory.lastProduct,
     lastList: assistantMemory.lastList,
+    prevProduct: assistantMemory.prevProduct,
+    profile: assistantMemory.profile,
     pending: assistantMemory.pending,
     ackedIds: [...ackedProductIds],
   };
@@ -781,6 +844,9 @@ function runAssistantActions(actions, epoch) {
     if (a.type === "remove") {
       setCartQty(a.id, 0);
       if (checkoutScreen.classList.contains("show")) { if (cartCount() === 0) closeCheckout(); else { renderReviewList(); refreshCheckoutSteps(); } }
+    } else if (a.type === "setQty") {
+      setCartQty(a.id, a.qty);
+      if (checkoutScreen.classList.contains("show")) renderReviewList();
     } else if (a.type === "clearCart") {
       cart = [];
       updateCartFooter();
@@ -792,7 +858,7 @@ function runAssistantActions(actions, epoch) {
       setLanguage(a.lang);
     } else if (a.type === "browse") {
       selectCategory(a.category);
-      showToast(currentLang === "es" ? "Mostrando en la pantalla principal" : "Showing them on the main screen");
+      showToast(L("Showing them on the main screen", "Mostrando en la pantalla principal"));
     }
     next();
   };
@@ -811,7 +877,7 @@ function playAssistantResponse(resp) {
   const go = (i) => {
     if (epoch !== chatEpoch) return;
     if (i >= steps.length) {
-      if (resp.emergency) { closeAiChat(); setTimeout(triggerEmergency, 400); return; }
+      if (resp.emergency) { closeAiChat(); setTimeout(() => triggerEmergency(resp.emergencyKind), 400); return; }
       runAssistantActions(resp.actions, epoch);
       return;
     }
@@ -835,6 +901,8 @@ function handleChatSend(raw) {
   const resp = Assistant.respond(text, assistantCtx());
   if (resp.last !== undefined) assistantMemory.lastProduct = resp.last;
   if (resp.lastList !== undefined) assistantMemory.lastList = resp.lastList;
+  assistantMemory.prevProduct = resp.prev;
+  if (resp.profile !== undefined) assistantMemory.profile = resp.profile;
   assistantMemory.pending = resp.pending;
   playAssistantResponse(resp);
 }
@@ -877,6 +945,9 @@ const FACILITIES = {
   ],
 };
 
+const ES_DAYS = { Mon: "Lun", Fri: "Vie", Sat: "Sáb", Sun: "Dom" };
+function localHours(h) { return currentLang === "es" ? h.replace(/\b(Mon|Fri|Sat|Sun)\b/g, (d) => ES_DAYS[d]) : h; }
+
 function careCardHtml(f, kind) {
   const emergencyClass = kind === "er" ? " emergency" : "";
   const icon = kind === "pharmacy" ? "logo" : "building";
@@ -885,9 +956,9 @@ function careCardHtml(f, kind) {
       <div class="cc-icon">${iconSvg(icon)}</div>
       <div class="cc-info">
         <div class="cc-name">${f.name}</div>
-        <div class="cc-row"><strong>${t("careAddress")}:</strong> ${f.address}</div>
-        <div class="cc-row"><strong>${t("carePhone")}:</strong> ${f.phone}</div>
-        ${f.hours ? `<div class="cc-row"><strong>${t("careHours")}:</strong> ${f.hours}</div>` : ""}
+        <div class="cc-row"><strong>${t("careAddress")}:</strong> <a class="cc-link" href="https://maps.apple.com/?q=${encodeURIComponent(f.address)}" target="_blank" rel="noopener">${f.address}</a></div>
+        <div class="cc-row"><strong>${t("carePhone")}:</strong> <a class="cc-link" href="tel:+1${f.phone.replace(/\D/g, "")}">${f.phone}</a></div>
+        ${f.hours ? `<div class="cc-row"><strong>${t("careHours")}:</strong> ${localHours(f.hours)}</div>` : ""}
         ${f.open24 ? `<span class="cc-open24">${t("careOpen24")}</span>` : ""}
       </div>
     </div>
@@ -962,16 +1033,19 @@ function openProductModal(product) {
   const riskBanner = product.highRisk
     ? `<div class="risk-banner">${iconSvg("alert")}<span>${t("riskBanner")}</span></div>`
     : "";
+  // Cards only carry "ID Required"; everything else about the item lives here.
+  const bpBanner = /high blood pressure/.test((product._en || product).warnings)
+    ? `<div class="risk-banner">${iconSvg("alert")}<span>${t("bpBanner")}</span></div>`
+    : "";
   const ingredientBlock = product.activeIngredient
     ? `<div class="fact-block"><div class="fact-label">${t("factIngredient")}</div><div class="fact-value"></div></div>`
     : "";
-  const langNote = currentLang === "es"
-    ? `<div class="verify-demo-note" style="margin-top:14px;">${t("medInfoEnglishNote")}</div>`
-    : "";
+  const langNote = "";
 
   productModalBody.innerHTML = `
     <div class="pd-art">${productArtSvg(product)}</div>
     ${riskBanner}
+    ${bpBanner}
     ${ageBanner}
     <div class="card-title" style="font-size:1.4rem;margin-bottom:4px;"></div>
     <div class="card-dosage" style="margin-bottom:10px;"></div>
@@ -987,7 +1061,7 @@ function openProductModal(product) {
   if (product.activeIngredient) productModalBody.querySelector(".fact-block .fact-value").textContent = product.activeIngredient;
   document.getElementById("pdUses").textContent = product.uses;
   document.getElementById("pdInstructions").textContent = product.instructions;
-  document.getElementById("pdWarnings").textContent = product.warnings;
+  document.getElementById("pdWarnings").innerHTML = warningListHtml(product.warnings);
   document.getElementById("pdAllergy").textContent = product.allergyAlert;
 
   const addBtn = document.getElementById("pdAddBtn");
@@ -1016,7 +1090,7 @@ document.getElementById("pdAddBtn").addEventListener("click", () => {
   const product = modalProduct, qty = modalQty;
   guardedAdd(product, qty, (ok) => {
     if (!ok) return;
-    showToast(`${product.name} ${currentLang === "es" ? "agregado a su pedido" : "added to your order"}`);
+    showToast(`${product.name} ${L("added to your order", "agregado a su pedido")}`);
     flyToCart(document.getElementById("pdAddBtn"), product);
     closeProductModal();
   });
@@ -1055,6 +1129,7 @@ function computeActiveSteps() {
 }
 
 function openCheckout() {
+  lastRemoved = null;
   pruneUnavailableCart();
   if (cartCount() === 0) return;
   cancelCheckoutTimers();
@@ -1142,9 +1217,9 @@ function renderInteractionStep() {
   const list = document.getElementById("interactionList");
   list.innerHTML = checkCartInteractions().map((w) => `
     <div class="interaction-card">
-      <div class="ic-title">${w.title}</div>
-      <div class="ic-items">${w.names.join(" + ")}</div>
-      <div class="ic-detail">${w.detail}</div>
+      <div class="ic-title">${esc(w.title)}</div>
+      <div class="ic-items">${esc(w.names.join(" + "))}</div>
+      <div class="ic-detail">${esc(w.detail)}</div>
     </div>
   `).join("");
   setInteractionAck(false); // must be re-confirmed every time this step is shown
@@ -1175,13 +1250,36 @@ document.getElementById("checkoutBackBtn").addEventListener("click", () => {
 
 // ---- Step 1: order review ----
 
+let lastRemoved = null; // { id, qty } for the review screen's Undo
+
 function renderReviewList() {
   reviewListEl.innerHTML = "";
-  const flagged = checkCartInteractions().length;
+  const es = currentLang === "es";
+  const combos = checkCartInteractions();
   const banner = document.getElementById("reviewInteractionBanner");
-  banner.style.display = flagged ? "flex" : "none";
-  banner.querySelector("span").textContent = t("reviewInteractionBanner");
+  banner.style.display = combos.length ? "flex" : "none";
+  banner.querySelector("span").textContent = combos.length
+    ? `${combos.map((w) => w.names.join(" + ")).join("; ")}: ${t("reviewInteractionBanner")}`
+    : "";
+  if (lastRemoved) {
+    const p = findProduct(lastRemoved.id);
+    const undo = document.createElement("div");
+    undo.className = "review-undo";
+    undo.innerHTML = `<span></span><button class="review-undo-btn"></button>`;
+    undo.querySelector("span").textContent = es ? `Quitó ${p.name}.` : `Removed ${p.name}.`;
+    undo.querySelector("button").textContent = es ? "Deshacer" : "Undo";
+    undo.querySelector("button").addEventListener("click", () => {
+      // Re-adding skips the safety prompt only because this customer already confirmed it.
+      cart.push({ id: lastRemoved.id, qty: lastRemoved.qty });
+      lastRemoved = null;
+      updateCartFooter();
+      renderReviewList();
+      refreshCheckoutSteps();
+    });
+    reviewListEl.appendChild(undo);
+  }
   cartItems().forEach(({ product, qty }) => {
+    const max = product.highRisk ? 2 : 10;
     const row = document.createElement("div");
     row.className = "review-item";
     row.innerHTML = `
@@ -1190,23 +1288,42 @@ function renderReviewList() {
         <div class="ri-name"></div>
         <div class="ri-dosage"></div>
       </div>
+      <div class="ri-stepper">
+        <button class="ri-step" data-d="-1">${iconSvg("minus")}</button>
+        <span class="ri-qty">${qty}</span>
+        <button class="ri-step" data-d="1" ${qty >= max ? "disabled" : ""}>${iconSvg("plus")}</button>
+      </div>
       <div class="ri-price"></div>
-      <div class="ri-remove">${iconSvg("close")}</div>
+      <button class="ri-remove">${iconSvg("close")}</button>
     `;
     row.querySelector(".ri-name").textContent = product.name;
-    row.querySelector(".ri-dosage").textContent = `${product.dosage} · ${currentLang === "es" ? "Cant." : "Qty"} ${qty}`;
+    row.querySelector(".ri-dosage").textContent = product.dosage;
     row.querySelector(".ri-price").textContent = money(product.price * qty);
-    row.querySelector(".ri-remove").addEventListener("click", () => {
+    row.querySelector('[data-d="-1"]').setAttribute("aria-label", t("ariaQtyMinus"));
+    row.querySelector('[data-d="1"]').setAttribute("aria-label", t("ariaQtyPlus"));
+    row.querySelector(".ri-remove").setAttribute("aria-label", (es ? "Quitar " : "Remove ") + product.name);
+    const remove = () => {
+      lastRemoved = { id: product.id, qty };
       setCartQty(product.id, 0);
-      if (cartCount() === 0) { closeCheckout(); return; }
+      if (cartCount() === 0) { lastRemoved = null; closeCheckout(); return; }
       renderReviewList();
       refreshCheckoutSteps();
-    });
+    };
+    row.querySelectorAll(".ri-step").forEach((b) => b.addEventListener("click", () => {
+      const next = qty + Number(b.dataset.d);
+      if (next <= 0) { remove(); return; }
+      setCartQty(product.id, Math.min(next, max));
+      lastRemoved = null;
+      renderReviewList();
+      refreshCheckoutSteps();
+    }));
+    row.querySelector(".ri-remove").addEventListener("click", remove);
     reviewListEl.appendChild(row);
   });
   updateReviewSummary();
 }
 
+// The review screen's empty space explains what's left, in order (it is a real sequence).
 function updateReviewSummary() {
   const subtotal = cartSubtotal();
   const tax = subtotal * TAX_RATE;
@@ -1230,6 +1347,7 @@ function resetTermsStep() {
   termsCheckbox.classList.remove("checked");
   termsCheckbox.innerHTML = "";
   termsAgreeBtn.disabled = true;
+  document.getElementById("termsCheckRow").setAttribute("aria-checked", "false");
   document.getElementById("stepTerms").querySelector(".step-scroll").scrollTop = 0;
 }
 
@@ -1238,11 +1356,13 @@ function toggleTermsCheckbox() {
   termsCheckbox.classList.toggle("checked", termsAgreed);
   termsCheckbox.innerHTML = termsAgreed ? iconSvg("check") : "";
   termsAgreeBtn.disabled = !termsAgreed;
+  document.getElementById("termsCheckRow").setAttribute("aria-checked", String(termsAgreed));
 }
 // One handler on the row only: the checkbox (and its check icon) live inside
 // it, so a second handler on the checkbox toggled twice when the checkmark
 // itself was tapped and made un-checking impossible.
 document.getElementById("termsCheckRow").addEventListener("click", toggleTermsCheckbox);
+document.getElementById("termsCheckRow").addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleTermsCheckbox(); } });
 
 termsAgreeBtn.addEventListener("click", () => {
   if (!termsAgreed) return;
@@ -1297,7 +1417,7 @@ const simulatePayBtn = document.getElementById("simulatePayBtn");
 function resetPayStep() {
   const total = cartSubtotal() * (1 + TAX_RATE);
   document.getElementById("payAmountLine").textContent =
-    (currentLang === "es" ? "Total a pagar: " : "Total due: ") + money(total);
+    L("Total due: ", "Total a pagar: ") + money(total);
   payProcessing.classList.remove("show");
   simulatePayBtn.disabled = false;
   simulatePayBtn.querySelector("span").textContent = t("simulatePay");
@@ -1324,7 +1444,7 @@ simulatePayBtn.addEventListener("click", () => {
     closeCheckout();
     if (removed.length) {
       // Nothing was charged; send them back to their (now different) cart.
-      showToast(`${removed.join(", ")} ${currentLang === "es" ? "ya no está disponible — no se realizó ningún cargo" : "is no longer available — you were not charged"}`);
+      showToast(`${removed.join(", ")} ${L("is no longer available — you were not charged", "ya no está disponible — no se realizó ningún cargo")}`);
       return;
     }
     startDispense();
@@ -1332,9 +1452,10 @@ simulatePayBtn.addEventListener("click", () => {
 });
 
 reviewPayBtn.addEventListener("click", openCheckout);
+document.querySelector(".cart-count").addEventListener("click", () => document.getElementById("headerCartBtn").click());
 document.getElementById("headerCartBtn").addEventListener("click", () => {
   if (cartCount() > 0) openCheckout();
-  else showToast(currentLang === "es" ? "Su carrito está vacío" : "Your cart is empty");
+  else showToast(L("Your cart is empty", "Su carrito está vacío"));
 });
 
 // ============================================================
@@ -1410,7 +1531,7 @@ function failDispense() {
   cart = [];
   updateCartFooter();
 
-  startResetCountdown(20);
+  startResetCountdown(60);
 }
 
 function finishDispense(orderSnapshot, orderTotal) {
@@ -1420,59 +1541,33 @@ function finishDispense(orderSnapshot, orderTotal) {
   dispenseSub.textContent = t("orderCompleteSub");
 
   receiptCard.innerHTML = orderSnapshot
-    .map((i) => `<div class="receipt-row"><span>${i.name}${i.qty > 1 ? " × " + i.qty : ""}</span><span>${money(i.price * i.qty)}</span></div>`)
+    .map((i) => {
+      // directions on screen too: not everyone has a phone to scan the QR
+      const p = findProduct(i.id);
+      const how = p && p.activeIngredient ? `<div class="receipt-how"><b>${t("factDosage")}:</b> ${esc(p.instructions)}</div>` : "";
+      return `<div class="receipt-row"><span>${esc(i.name)}${i.qty > 1 ? " × " + i.qty : ""}</span><span>${money(i.price * i.qty)}</span></div>${how}`;
+    })
     .join("") + `<div class="receipt-row"><span><strong>${t("total")}</strong></span><span><strong>${money(orderTotal)}</strong></span></div>`;
   receiptCard.classList.add("show");
   renderOrderQr(orderSnapshot);
   safetyCard.classList.add("show");
   doneNowBtn.classList.add("show");
-  burstConfetti();
 
   cart = [];
   updateCartFooter();
 
-  startResetCountdown(20);
+  startResetCountdown(60);
 }
 
-// Celebration burst from the success badge when an order dispenses.
-function burstConfetti() {
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const origin = dispenseAnim.getBoundingClientRect();
-  const kRect = kiosk.getBoundingClientRect();
-  const scale = kRect.width / 1080 || 1;
-  const cx = (origin.left + origin.width / 2 - kRect.left) / scale;
-  const cy = (origin.top + origin.height / 2 - kRect.top) / scale;
-  const colors = ["#0284C7", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#38BDF8"];
-  for (let i = 0; i < 36; i++) {
-    const bit = document.createElement("div");
-    bit.className = "confetti";
-    bit.style.left = cx + "px";
-    bit.style.top = cy + "px";
-    bit.style.background = colors[i % colors.length];
-    bit.style.borderRadius = i % 3 === 0 ? "50%" : "2px";
-    dispenseScreen.appendChild(bit);
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 180 + Math.random() * 320;
-    const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist - 120;
-    const a = bit.animate(
-      [
-        { transform: "translate(0,0) rotate(0)", opacity: 1 },
-        { transform: `translate(${dx}px, ${dy}px) rotate(${Math.random() * 540}deg)`, opacity: 1, offset: 0.55 },
-        { transform: `translate(${dx * 1.15}px, ${dy + 260}px) rotate(${Math.random() * 900}deg)`, opacity: 0 },
-      ],
-      { duration: 1400 + Math.random() * 700, easing: "cubic-bezier(.2,.7,.4,1)" }
-    );
-    a.onfinish = () => bit.remove();
-  }
-}
 
 // Real QR code for the order: opens the phone-side facts page (facts.html)
 // for exactly the items that were just dispensed.
 function renderOrderQr(orderSnapshot) {
   const url = factsUrlFor(orderSnapshot.map((i) => i.id), currentLang);
   document.getElementById("orderQr").innerHTML = qrSvg(url, { ecc: "M" });
-  document.getElementById("orderQrUrl").textContent = url.replace(/^https?:\/\//, "").split("?")[0];
+  const link = document.getElementById("orderQrUrl");
+  link.textContent = url.replace(/^https?:\/\//, "").split(/[?#]/)[0];
+  link.href = url;
 }
 
 function startResetCountdown(seconds) {
@@ -1499,7 +1594,11 @@ doneNowBtn.addEventListener("click", () => { clearInterval(resetCountdownInterva
 // ============================================================
 
 const emergencyOverlay = document.getElementById("emergencyOverlay");
-function triggerEmergency() {
+function triggerEmergency(kind) {
+  // a language switch re-runs lastMode; never let it re-fire this screen
+  lastMode = { type: "category", value: currentCategory };
+  // Crisis gets the 988 line, poisoning gets Poison Control; everything else the standard 911 text.
+  emergencyOverlay.querySelector("p").textContent = t(kind === "crisis" ? "crisisText" : kind === "poison" ? "poisonText" : "emergencyText");
   const erListEl = document.getElementById("emergencyErList");
   erListEl.innerHTML = FACILITIES.er.map((f) => `
     <div class="emergency-er-card">
@@ -1545,7 +1644,10 @@ function hideIdle() {
 }
 
 document.getElementById("idleCta").addEventListener("click", hideIdle);
-idleOverlay.addEventListener("click", hideIdle);
+idleOverlay.addEventListener("click", (e) => { if (!e.target.closest(".idle-link")) hideIdle(); });
+
+// ---- "How MediVend works": the exhibit explains itself without a presenter ----
+// Figures are cited on the screen; keep them in sync with the sources listed there.
 
 let inactivityTimer = null;
 const INACTIVITY_MS = 120000;
@@ -1556,9 +1658,42 @@ function bumpActivity() {
   inactivityTimer = setTimeout(returnToIdleFromInactivity, INACTIVITY_MS);
 }
 function returnToIdleFromInactivity() {
-  if (emergencyOverlay.classList.contains("show")) return;
-  resetKiosk();
+  // Leave the emergency screen up longer, but never forever: the next customer
+  // must not inherit the last person's chat and cart.
+  if (emergencyOverlay.classList.contains("show") && !returnToIdleFromInactivity.extended) {
+    returnToIdleFromInactivity.extended = true;
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(returnToIdleFromInactivity, INACTIVITY_MS * 2);
+    return;
+  }
+  returnToIdleFromInactivity.extended = false;
+  askStillThere();
 }
+
+// Warn before wiping someone's cart: 20 seconds and a big "I need more time" button.
+const stillThere = document.getElementById("stillThere");
+let stillThereInterval = null;
+function askStillThere() {
+  if (!idleOverlay.classList.contains("hide")) return;
+  let left = 20;
+  const update = () => {
+    document.getElementById("stillThereCount").textContent = currentLang === "es"
+      ? `La pantalla se reiniciará en ${left} s.` : `The screen will reset in ${left} s.`;
+  };
+  update();
+  stillThere.classList.add("show");
+  clearInterval(stillThereInterval);
+  stillThereInterval = setInterval(() => {
+    left--;
+    if (left <= 0) { closeStillThere(); resetKiosk(); return; }
+    update();
+  }, 1000);
+}
+function closeStillThere() {
+  clearInterval(stillThereInterval);
+  stillThere.classList.remove("show");
+}
+document.getElementById("stillThereBtn").addEventListener("click", () => { closeStillThere(); bumpActivity(); });
 // Tapping/clicking was the only thing that counted as "activity" before,
 // so typing a chat message, reading the Terms box, or scrolling with a
 // mouse wheel (none of which fire pointerdown) could silently run out the
@@ -1572,6 +1707,10 @@ function returnToIdleFromInactivity() {
 kiosk.addEventListener("scroll", bumpActivity, true);
 
 function resetKiosk() {
+  closeStillThere();
+  if (recognizer && listening) { try { recognizer.abort(); } catch (e) {} }
+  stopListeningUI();
+  voiceConsented = false;
   cart = [];
   updateCartFooter();
   closeCheckout();
@@ -1590,6 +1729,15 @@ function resetKiosk() {
   ackedProductIds = new Set(); // a new customer must acknowledge again
   if (disasterMode && disasterUiState === "items") renderDisasterTriage(); // fresh customer starts at triage
   searchInput.value = "";
+  chatInput.value = "";
+  // Fresh customer: demo scenarios, language and display settings back to defaults.
+  resetAllScenarios(true);
+  lastMode = { type: "category", value: "all" };
+  if (currentLang !== "en") setLanguage("en");
+  ["largeTextToggle", "highContrastToggle", "darkModeToggle"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el.classList.contains("on")) el.click();
+  });
   hideBanner();
   selectCategory("all");
   // Fresh customer, fresh conversation.
@@ -1630,11 +1778,28 @@ kiosk.addEventListener("pointerdown", (e) => {
   if (!a11yDropdown.contains(e.target) && !DROPDOWN_OPEN_IDS.has(e.target.id)) a11yDropdown.classList.remove("show");
 });
 
-document.getElementById("langEnBtn").addEventListener("click", () => setLanguage("en"));
-document.getElementById("langEsBtn").addEventListener("click", () => setLanguage("es"));
+document.getElementById("langEnBtn").addEventListener("click", () => { setLanguage("en"); langDropdown.classList.remove("show"); });
+document.getElementById("langEsBtn").addEventListener("click", () => { setLanguage("es"); langDropdown.classList.remove("show"); });
+
+// Icon-only buttons get a spoken name in the current language.
+const ARIA_LABELS = {
+  headerCartBtn: "ariaCart", langBtn: "ariaLanguage", a11yBtn: "ariaAccessibility", micBtn: "ariaVoice", helperBtn: "ariaHelper",
+  productModalClose: "ariaClose", pdQtyMinus: "ariaQtyMinus", pdQtyPlus: "ariaQtyPlus", symptomModalClose: "ariaClose", aiChatClose: "ariaClose",
+  chatMicBtn: "ariaVoice", chatSendBtn: "ariaSend", careBackBtn: "ariaBack", checkoutBackBtn: "ariaBack", aboutBackBtn: "ariaBack", judgesClose: "ariaClose",
+  disasterLangBtn: "ariaLanguage", disasterA11yBtn: "ariaAccessibility",
+};
+function applyAriaLabels() {
+  Object.entries(ARIA_LABELS).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) { el.setAttribute("aria-label", t(key)); el.title = t(key); }
+  });
+}
 
 function setLanguage(lang) {
   currentLang = lang;
+  localizeProducts(lang);
+  document.documentElement.lang = lang === "es" ? "es-US" : "en";
+  applyAriaLabels();
   document.getElementById("langCode").textContent = lang.toUpperCase();
   document.getElementById("disasterLangCode").textContent = lang.toUpperCase();
   document.getElementById("langEnBtn").classList.toggle("active", lang === "en");
@@ -1656,11 +1821,14 @@ function setLanguage(lang) {
 // Accessibility toggles
 function wireToggle(btnId, onChange) {
   const el = document.getElementById(btnId);
-  el.addEventListener("click", () => {
+  const flip = () => {
     const on = !el.classList.contains("on");
     el.classList.toggle("on", on);
+    el.setAttribute("aria-checked", String(on));
     onChange(on);
-  });
+  };
+  el.addEventListener("click", flip);
+  el.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); } });
 }
 wireToggle("largeTextToggle", (on) => {
   kiosk.classList.toggle("a11y-large", on);
@@ -1715,12 +1883,12 @@ function renderJudgesStockList() {
     else { statusEl.textContent = p.inStock ? t("inStock") : t("outOfStock"); statusEl.classList.add(p.inStock ? "in" : "out"); }
     const btn = row.querySelector(".jr-toggle");
     if (locked) {
-      btn.textContent = currentLang === "es" ? "Bloqueado" : "Locked";
+      btn.textContent = L("Locked", "Bloqueado");
       btn.disabled = true;
     } else {
       btn.textContent = p.inStock
-        ? (currentLang === "es" ? "Agotar" : "Mark Out")
-        : (currentLang === "es" ? "Reponer" : "Mark In");
+        ? L("Mark Out", "Agotar")
+        : L("Mark In", "Reponer");
       btn.addEventListener("click", () => setProductStock(p.id, !p.inStock));
     }
     judgesStockListEl.appendChild(row);
@@ -1737,7 +1905,7 @@ function renderScenarioBanners() {
       <div class="scenario-banner temp">
         ${iconSvg("thermometer")}
         <span class="sb-text">${t("thermalBannerText")}</span>
-        <button id="resolveThermalBtn">${currentLang === "es" ? "Resolver" : "Resolve"}</button>
+        <button id="resolveThermalBtn">${L("Resolve", "Resolver")}</button>
       </div>
     `);
   }
@@ -1749,20 +1917,20 @@ function renderScenarioBanners() {
 function updateJudgesToggleButtons() {
   const thermalLabel = document.getElementById("thermalOverrideLabel");
   thermalLabel.textContent = cabinetOverheated
-    ? (currentLang === "es" ? "Borrar Bloqueo Térmico" : "Clear Thermal Lockout")
-    : (currentLang === "es" ? "Activar Bloqueo Térmico" : "Trigger Thermal Stability Override");
+    ? L("Clear Thermal Lockout", "Borrar Bloqueo Térmico")
+    : L("Trigger Thermal Stability Override", "Activar Bloqueo Térmico");
   document.getElementById("thermalOverrideBtn").classList.toggle("active-state", cabinetOverheated);
 
   const disasterLabel = document.getElementById("disasterModeLabel");
   disasterLabel.textContent = disasterMode
-    ? (currentLang === "es" ? "Salir del Modo de Desastre" : "Exit Disaster Relief Mode")
-    : (currentLang === "es" ? "Activar Modo de Desastre" : "Activate Disaster Relief Mode");
+    ? L("Exit Disaster Relief Mode", "Salir del Modo de Desastre")
+    : L("Activate Disaster Relief Mode", "Activar Modo de Desastre");
   document.getElementById("disasterModeBtn").classList.toggle("active-state", disasterMode);
 
   const jamLabel = document.getElementById("dispenserJamLabel");
   jamLabel.textContent = simulateDispenserJam
-    ? (currentLang === "es" ? "Atasco Armado — Listo" : "Jam Armed — Ready")
-    : (currentLang === "es" ? "Armar Atasco del Dispensador (Próximo Pedido)" : "Arm Dispenser Jam (Next Order)");
+    ? L("Jam Armed — Ready", "Atasco Armado — Listo")
+    : L("Arm Dispenser Jam (Next Order)", "Armar Atasco del Dispensador (Próximo Pedido)");
   document.getElementById("dispenserJamBtn").classList.toggle("active-state", simulateDispenserJam);
 }
 
@@ -1773,7 +1941,7 @@ function toggleThermalOverride() {
   refreshCurrentView();
   syncCartWithAvailability();
   if (disasterMode) renderDisasterScreen();
-  if (cabinetOverheated) showToast(currentLang === "es" ? "🌡️ Anulación de estabilidad térmica activada" : "🌡️ Thermal stability override triggered");
+  if (cabinetOverheated) showToast(L("🌡️ Thermal stability override triggered", "🌡️ Anulación de estabilidad térmica activada"));
 }
 
 // ---- Disaster Relief Mode: full-screen off-grid triage terminal ----
@@ -1821,7 +1989,7 @@ function updateDisasterCartButton() {
   const btn = document.getElementById("disasterCartBtn");
   const label = document.getElementById("disasterCartLabel");
   const n = cartCount();
-  label.textContent = `${currentLang === "es" ? "Carrito" : "Cart"} (${n})${n ? " · " + money(cartSubtotal()) : ""}`;
+  label.textContent = `${L("Cart", "Carrito")} (${n})${n ? " · " + money(cartSubtotal()) : ""}`;
   btn.disabled = n === 0;
 }
 
@@ -1968,8 +2136,8 @@ function renderDisasterGuidance(product) {
   body.innerHTML = `
     <div class="disaster-guidance">
       <div class="dg-icon">${iconSvg("check")}</div>
-      <div class="dg-title">${es ? "ENTREGANDO" : "DISPENSING"}: ${product.name}</div>
-      <div class="dg-text">${es ? "Guía de Emergencia" : "Emergency Guidance"}: ${buildEmergencyGuidance(product)}</div>
+      <div class="dg-title">${es ? "ENTREGANDO" : "DISPENSING"}: ${esc(product.name)}</div>
+      <div class="dg-text">${es ? "Guía de Emergencia" : "Emergency Guidance"}: ${esc(buildEmergencyGuidance(product))}</div>
       <div class="dg-qr-row">
         <div class="qr-box small" id="reliefQr"></div>
         <div class="dg-qr-text">${es
@@ -2045,14 +2213,16 @@ document.getElementById("disasterCartBtn").addEventListener("click", () => { if 
 function armDispenserJam() {
   simulateDispenserJam = true;
   updateJudgesToggleButtons();
-  showToast(currentLang === "es" ? "🔧 Atasco del dispensador armado para el próximo pedido" : "🔧 Dispenser jam armed for the next order");
+  showToast(L("🔧 Dispenser jam armed for the next order", "🔧 Atasco del dispensador armado para el próximo pedido"));
 }
 
 function simulateInteractionDemo() {
-  addToCart(findProduct("aspirin"), 1);
-  addToCart(findProduct("ibuprofen"), 1);
   closeJudgesPanel();
-  openCheckout();
+  // Goes through the same mandatory acknowledgments a customer sees.
+  guardedAdd(findProduct("aspirin"), 1, (a) => {
+    if (!a) return;
+    guardedAdd(findProduct("ibuprofen"), 1, (b) => { if (b) openCheckout(); });
+  });
 }
 
 function triggerRedFlagDemo() {
@@ -2062,7 +2232,7 @@ function triggerRedFlagDemo() {
   runSearch(query);
 }
 
-function resetAllScenarios() {
+function resetAllScenarios(silent) {
   PRODUCTS.forEach((p) => { p.inStock = true; });
   cabinetOverheated = false;
   simulateDispenserJam = false;
@@ -2076,7 +2246,7 @@ function resetAllScenarios() {
   renderScenarioBanners();
   refreshCurrentView();
   syncCartWithAvailability();
-  showToast(currentLang === "es" ? "Todos los escenarios de demostración restablecidos" : "All demo scenarios reset");
+  if (!silent) showToast(L("All demo scenarios reset", "Todos los escenarios de demostración restablecidos"));
 }
 
 function openJudgesPanel() {
@@ -2092,12 +2262,22 @@ document.getElementById("disasterModeBtn").addEventListener("click", toggleDisas
 document.getElementById("dispenserJamBtn").addEventListener("click", armDispenserJam);
 document.getElementById("interactionDemoBtn").addEventListener("click", simulateInteractionDemo);
 document.getElementById("redFlagBtn").addEventListener("click", triggerRedFlagDemo);
-document.getElementById("resetAllScenariosBtn").addEventListener("click", resetAllScenarios);
+document.getElementById("resetAllScenariosBtn").addEventListener("click", () => resetAllScenarios());
 
 // ============================================================
 // Init
 // ============================================================
 
+applyAriaLabels();
+// Exhibit/demo builds show the Judges controls; a real unit launches with ?kiosk and hides them.
+if (new URLSearchParams(location.search).has("kiosk")) {
+  ["judgesToggle"].forEach((id) => document.getElementById(id).remove());
+}
+// Chrome's speech recognition runs on Google's servers, so the mic only appears when online.
+function syncMicAvailability() { [micBtn, chatMicBtn].forEach((b) => { b.hidden = !navigator.onLine || !recognizer; }); }
+window.addEventListener("online", syncMicAvailability);
+window.addEventListener("offline", syncMicAvailability);
+syncMicAvailability();
 renderFilterBar();
 selectCategory("all");
 updateCartFooter();

@@ -33,5 +33,6 @@ function qrSvg(text, opts) {
 const FACTS_PAGE_URL = "https://atectonicc-ui.github.io/medvend-health-kiosk/facts.html";
 
 function factsUrlFor(productIds, lang) {
-  return `${FACTS_PAGE_URL}?i=${productIds.join(",")}&l=${lang === "es" ? "es" : "en"}`;
+  // Fragment, not query: it never reaches the web server or its access logs.
+  return `${FACTS_PAGE_URL}#i=${productIds.join(",")}&l=${lang === "es" ? "es" : "en"}`;
 }

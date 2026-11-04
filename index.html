@@ -4,7 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>MediVend Health Kiosk</title>
-<link rel="stylesheet" href="style.css?v=25" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<script src="boot.js"></script>
+<link rel="stylesheet" href="style.css?v=51" />
 </head>
 <body>
 
@@ -87,7 +90,7 @@
         <div class="idle-tip" id="idleTip"></div>
         <div class="idle-demo-badge">DEMO</div>
         <button class="idle-cta" id="idleCta" data-i18n="idleCtaText">TOUCH TO BROWSE MEDICAL &amp; FIRST AID SUPPLIES</button>
-        <div class="idle-credit">By Chetan Nallapaneni and Sriansh Madari</div>
+        <div class="idle-credit">By Chetan Nallapaneni and Sriansh Madari<span class="trademark-note" data-i18n="trademarkNote">Advil, Tylenol, Bayer, Benadryl, Vicks, DayQuil, Afrin, Pamprin, Icy Hot, ThermaCare, Halls, Tums, Pedialyte, Dramamine, Imodium, Neosporin, Nexcare, ACE, Band-Aid, Always, Tampax, First Response, Purell and Coppertone are trademarks of their respective owners. MediVend is a student project and is not affiliated with, sponsored by, or endorsed by any of them. Brand names and logos are shown only to identify the products.</span></div>
       </div>
 
       <!-- ===== Catalog ===== -->
@@ -379,7 +382,7 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
           <div>
             <div class="safety-title" data-i18n="safetyTitle">Usage &amp; Safety Guidelines</div>
             <div class="safety-sub" data-i18n="safetySub">Scan this QR code with your phone's camera to open the drug facts, directions and safety warnings for exactly what you bought.</div>
-            <div class="qr-url" id="orderQrUrl"></div>
+            <a class="qr-url" id="orderQrUrl" target="_blank" rel="noopener"></a>
           </div>
         </div>
 
@@ -440,6 +443,14 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
         </div>
       </div>
 
+      <div class="still-there" id="stillThere" role="alertdialog" aria-modal="true" aria-labelledby="stillThereTitle">
+        <div class="still-there-card">
+          <div class="still-there-title" id="stillThereTitle" data-i18n="stillThereTitle">Still there?</div>
+          <div class="still-there-sub" id="stillThereCount"></div>
+          <button class="primary-btn" id="stillThereBtn" data-i18n="stillThereBtn">I need more time</button>
+        </div>
+      </div>
+
       <!-- ===== Mandatory safety acknowledgment (dangerous medicines) ===== -->
       <div class="ack-overlay" id="safetyAckOverlay" role="dialog" aria-modal="true" aria-labelledby="ackTitle">
         <div class="ack-card" id="ackCard">
@@ -489,16 +500,18 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
 </div>
 
 <script src="vendor/qrcode.js?v=1"></script>
-<script src="qr.js?v=1"></script>
-<script src="rules.js?v=1"></script>
+<script src="qr.js?v=3"></script>
+<script src="rules.js?v=4"></script>
 <script src="icons.js?v=7"></script>
-<script src="products.js?v=6"></script>
-<script src="product-art.js?v=3"></script>
-<script src="ai.js?v=3"></script>
-<script src="med-qa.js?v=7"></script>
-<script src="i18n.js?v=13"></script>
-<script src="knowledge.js?v=2"></script>
-<script src="assistant.js?v=2"></script>
-<script src="kiosk.js?v=20"></script>
+<script src="products.js?v=12"></script>
+<script src="products-es.js?v=4"></script>
+<script src="product-art.js?v=10"></script>
+<script src="safety.js?v=26"></script>
+<script src="ai.js?v=7"></script>
+<script src="med-qa.js?v=8"></script>
+<script src="i18n.js?v=23"></script>
+<script src="knowledge.js?v=6"></script>
+<script src="assistant.js?v=39"></script>
+<script src="kiosk.js?v=37"></script>
 </body>
 </html>

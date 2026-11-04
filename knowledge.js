@@ -195,7 +195,7 @@ const HEALTH_TOPICS = [
   },
   {
     id: "coldcough",
-    triggers: ["cough", "coughing", "cold", "common cold", "flu", "runny nose", "stuffy nose", "congestion", "congested", "sneezing", "sinus"],
+    triggers: ["cough", "coughing", "cold", "common cold", "flu", "nose wont stop running", "nose is running", "runny nose", "stuffy nose", "congestion", "congested", "sneezing", "sinus"],
     title: { en: "Cold, cough & congestion", es: "Resfriado, tos y congestión" },
     steps: {
       en: [
@@ -237,7 +237,7 @@ const HEALTH_TOPICS = [
   },
   {
     id: "stomach",
-    triggers: ["upset stomach", "stomach ache", "stomachache", "nausea", "nauseous", "queasy", "vomiting", "throwing up", "indigestion", "heartburn", "acid reflux", "bloated", "gas", "sour stomach", "belly ache", "stomach pain"],
+    triggers: ["threw up", "throw up", "vomited", "puking", "puked", "upset stomach", "stomach ache", "stomachache", "nausea", "nauseous", "queasy", "vomiting", "throwing up", "indigestion", "heartburn", "acid reflux", "bloated", "gas", "sour stomach", "belly ache", "stomach pain"],
     title: { en: "Upset stomach, nausea & heartburn", es: "Malestar estomacal, náuseas y acidez" },
     steps: {
       en: [
@@ -504,8 +504,40 @@ const KIOSK_FAQ = [
     },
   },
   {
+    id: "pickup",
+    triggers: ["where do the items come out", "where does it come out", "where do i get my items", "how do i get my items", "where do i pick up", "pick up my items"],
+    answer: {
+      en: "After you pay, your items drop into the kiosk's pickup slot, and the screen tells you when they're ready.",
+      es: "Después de pagar, sus artículos caen en la ranura de recogida del quiosco, y la pantalla le avisa cuando estén listos.",
+    },
+  },
+  {
+    id: "limit",
+    triggers: ["is there a limit", "how many can i buy", "how many can i get", "purchase limit", "limit per order", "maximum i can buy"],
+    answer: {
+      en: "Medicines with a safety warning are limited to 2 per order. Everything else is limited to 10.",
+      es: "Los medicamentos con advertencia de seguridad tienen un límite de 2 por pedido. Todo lo demás, 10.",
+    },
+  },
+  {
+    id: "expiry",
+    triggers: ["expiration date", "expiry date", "when does it expire", "does it expire", "are these expired", "fecha de vencimiento", "fecha de caducidad"],
+    answer: {
+      en: "The expiration date is printed on each package. I can't see it from here, so check it before use and don't use anything past its date.",
+      es: "La fecha de vencimiento está impresa en cada paquete. No puedo verla desde aquí, así que revísela antes de usarlo y no use nada vencido.",
+    },
+  },
+  {
+    id: "demo",
+    triggers: ["are these real", "real medicine", "is this real", "is this a real kiosk", "is this legit"],
+    answer: {
+      en: "This is a student-built demo, so no real payment is taken and nothing is really dispensed. The product labels are written to mirror standard over-the-counter Drug Facts.",
+      es: "Esta es una demostración creada por estudiantes, así que no se cobra de verdad ni se entrega nada. Las etiquetas imitan la información estándar de medicamentos de venta libre.",
+    },
+  },
+  {
     id: "refund",
-    triggers: ["refund", "return", "exchange", "money back", "send it back", "return policy", "wrong item", "cancel my order", "cancel order"],
+    triggers: ["can i get a refund", "get my money back", "refund", "return", "exchange", "money back", "send it back", "return policy", "wrong item", "cancel my order", "cancel order"],
     answer: {
       en: "All sales are final — for safety, dispensed medication can't be returned, exchanged, or refunded. If the machine fails to dispense (a jam or sensor timeout), the transaction is reversed automatically and you're not charged. You can cancel any time before you pay by removing items from your cart.",
       es: "Todas las ventas son finales — por seguridad, los medicamentos dispensados no se pueden devolver, cambiar ni reembolsar. Si la máquina no dispensa (atasco o fallo del sensor), la transacción se revierte automáticamente y no se le cobra. Puede cancelar en cualquier momento antes de pagar quitando artículos del carrito.",
@@ -523,8 +555,8 @@ const KIOSK_FAQ = [
     id: "id",
     triggers: ["id required", "need id", "need an id", "photo id", "age restriction", "age restricted", "how old", "minimum age", "under 18", "underage", "age verification", "scan id", "id check", "do i need id"],
     answer: {
-      en: "Some items are age-restricted (for example the Daytime Cold & Flu Caplets, because of the cough suppressant). If your order has one, you'll be asked to scan a valid government-issued photo ID at checkout. (ID scanning is simulated in this demo.)",
-      es: "Algunos artículos tienen restricción de edad (por ejemplo, las cápsulas Cold & Flu de día, por el supresor de la tos). Si su pedido incluye uno, se le pedirá escanear una identificación con foto válida al pagar. (El escaneo de ID es simulado en esta demostración.)",
+      en: "Some items are age-restricted (for example Vicks DayQuil Cold & Flu, because of the cough suppressant). If your order has one, you'll be asked to scan a valid government-issued photo ID at checkout. (ID scanning is simulated in this demo.)",
+      es: "Algunos artículos tienen restricción de edad (por ejemplo, Vicks DayQuil, por el supresor de la tos). Si su pedido incluye uno, se le pedirá escanear una identificación con foto válida al pagar. (El escaneo de ID es simulado en esta demostración.)",
     },
   },
   {
