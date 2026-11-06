@@ -46,13 +46,13 @@ const HEALTH_TOPICS = [
         "Cool the burn right away under cool (not ice-cold) running water for about 10–20 minutes.",
         "Take off rings or tight items near the burn before it swells.",
         "Don't use ice, butter, or oils, and don't pop blisters.",
-        "Cover loosely with clean, non-stick gauze. A pain reliever can help if it hurts — follow the label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Enfríe la quemadura de inmediato bajo agua corriente fresca (no helada) durante unos 10–20 minutos.",
         "Quítese anillos u objetos apretados cerca de la quemadura antes de que se hinche.",
         "No use hielo, mantequilla ni aceites, y no reviente las ampollas.",
-        "Cubra sin apretar con gasa limpia que no se pegue. Un analgésico puede ayudar si duele — siga la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
@@ -68,14 +68,12 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Get out of the sun. Cool the skin with a cool shower or cool damp cloths.",
-        "Drink extra water — sunburn pulls fluid to the skin.",
-        "A pain reliever can ease the soreness — follow the label. Don't pop blisters.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "Next time: sunscreen 15 minutes before going out, and reapply every 2 hours.",
       ],
       es: [
         "Salga del sol. Enfríe la piel con una ducha fresca o paños húmedos y frescos.",
-        "Beba más agua — la quemadura de sol atrae líquido hacia la piel.",
-        "Un analgésico puede aliviar el dolor — siga la etiqueta. No reviente las ampollas.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
         "La próxima vez: protector solar 15 minutos antes de salir, y vuelva a aplicarlo cada 2 horas.",
       ],
     },
@@ -83,7 +81,7 @@ const HEALTH_TOPICS = [
       en: "you have blisters over a large area, fever or chills, severe pain, dizziness, or signs of dehydration.",
       es: "tiene ampollas en un área grande, fiebre o escalofríos, dolor intenso, mareo o señales de deshidratación.",
     },
-    products: ["sunscreen", "electrolyte", "ibuprofen"],
+    products: ["sunscreen"], medsAtDesk: true,
   },
   {
     id: "sprain",
@@ -94,20 +92,20 @@ const HEALTH_TOPICS = [
         "Rest the area and avoid putting weight on it.",
         "Ice it for 15–20 minutes at a time, several times a day for the first 48 hours, with a thin towel between the ice and your skin.",
         "Compress with an elastic wrap (snug, not tight) and keep the area raised above heart level when you can.",
-        "A pain reliever can help — follow the label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Descanse la zona y evite apoyar peso sobre ella.",
         "Aplique hielo durante 15–20 minutos a la vez, varias veces al día durante las primeras 48 horas, con una toalla delgada entre el hielo y la piel.",
         "Comprima con una venda elástica (firme, no apretada) y mantenga la zona elevada por encima del corazón cuando pueda.",
-        "Un analgésico puede ayudar — siga la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you can't put weight on it, the joint feels unstable or numb, it looks out of shape, there's no improvement after about a week, or colored streaks spread from the area.",
       es: "no puede apoyar peso, la articulación se siente inestable o adormecida, se ve deformada, no mejora después de una semana, o salen rayas de color desde la zona.",
     },
-    products: ["coldpack", "patch", "ibuprofen"],
+    products: ["coldpack", "patch"], medsAtDesk: true,
   },
   {
     id: "nosebleed",
@@ -137,19 +135,17 @@ const HEALTH_TOPICS = [
     title: { en: "Fever", es: "Fiebre" },
     steps: {
       en: [
-        "Rest and drink plenty of fluids; dress lightly.",
-        "Acetaminophen or ibuprofen can bring a fever down — follow the label directions, and never combine products with the same active ingredient.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
-        "Descanse y beba muchos líquidos; use ropa ligera.",
-        "El acetaminofén o el ibuprofeno pueden bajar la fiebre — siga las instrucciones de la etiqueta y nunca combine productos con el mismo ingrediente activo.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "an adult's temperature is 103°F (39.4°C) or higher, or the fever lasts more than 3 days; there's trouble breathing, chest pain, a bad headache or stiff neck, confusion, belly pain, repeated vomiting, a rash, or signs of dehydration. For a baby, any fever in an infant under 3 months needs a doctor right away.",
       es: "la temperatura de un adulto es de 103°F (39.4°C) o más, o la fiebre dura más de 3 días; hay dificultad para respirar, dolor de pecho, dolor de cabeza fuerte o rigidez de cuello, confusión, dolor abdominal, vómitos repetidos, sarpullido o señales de deshidratación. En un bebé, cualquier fiebre en menores de 3 meses requiere atención médica de inmediato.",
     },
-    products: ["acetaminophen", "ibuprofen", "electrolyte"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "headache",
@@ -157,19 +153,17 @@ const HEALTH_TOPICS = [
     title: { en: "Headache", es: "Dolor de cabeza" },
     steps: {
       en: [
-        "Rest in a quiet, dim room and drink some water — dehydration is a common trigger.",
-        "A pain reliever can help — follow the label directions.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
-        "Descanse en un cuarto tranquilo y con poca luz, y beba agua — la deshidratación es un desencadenante común.",
-        "Un analgésico puede ayudar — siga las instrucciones de la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "it's sudden and severe (\"the worst headache of your life\") or follows a head injury; or comes with confusion, a stiff neck with fever, weakness, numbness, vision or speech trouble — call 911 for those.",
       es: "es repentino y muy intenso (\"el peor dolor de cabeza de su vida\") o sigue a un golpe en la cabeza; o viene con confusión, rigidez de cuello con fiebre, debilidad, adormecimiento, problemas de visión o del habla — llame al 911 en esos casos.",
     },
-    products: ["ibuprofen", "acetaminophen"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "sorethroat",
@@ -177,21 +171,17 @@ const HEALTH_TOPICS = [
     title: { en: "Sore throat", es: "Dolor de garganta" },
     steps: {
       en: [
-        "Drink warm liquids (broth, decaf tea, warm water with honey) and rest your voice.",
-        "Gargle with salt water: ¼–½ teaspoon of salt in 4–8 ounces of warm water, then spit it out.",
-        "Throat lozenges or cough drops can soothe (not for children under 5 — choking hazard). A pain reliever can help — follow the label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
-        "Beba líquidos tibios (caldo, té sin cafeína, agua tibia con miel) y descanse la voz.",
-        "Haga gárgaras con agua salada: ¼–½ cucharadita de sal en 4–8 onzas de agua tibia, y luego escúpala.",
-        "Las pastillas para la garganta o para la tos pueden aliviar (no para menores de 5 años — riesgo de atragantamiento). Un analgésico puede ayudar — siga la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you have trouble breathing or swallowing or are drooling, the fever is above 101°F, or it lasts more than a week.",
       es: "tiene dificultad para respirar o tragar o babea, la fiebre es de más de 101°F, o dura más de una semana.",
     },
-    products: ["coughdrops", "acetaminophen"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "coldcough",
@@ -199,13 +189,11 @@ const HEALTH_TOPICS = [
     title: { en: "Cold, cough & congestion", es: "Resfriado, tos y congestión" },
     steps: {
       en: [
-        "Rest and drink plenty of fluids. Warm drinks and honey can soothe a cough (never give honey to babies under 1).",
-        "Cough drops can help a cough; a nasal spray can help congestion but shouldn't be used more than 3 days (the label warns of rebound congestion).",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "Wash your hands often and cover coughs to avoid spreading it.",
       ],
       es: [
-        "Descanse y beba muchos líquidos. Las bebidas tibias y la miel pueden calmar la tos (nunca dé miel a bebés menores de 1 año).",
-        "Las pastillas para la tos ayudan con la tos; el spray nasal ayuda con la congestión pero no debe usarse más de 3 días (la etiqueta advierte de congestión de rebote).",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
         "Lávese las manos con frecuencia y cúbrase al toser para no contagiar.",
       ],
     },
@@ -213,7 +201,7 @@ const HEALTH_TOPICS = [
       en: "you have shortness of breath, wheezing, chest pain, a high fever, or you cough up blood (call 911 for trouble breathing or coughing blood); or symptoms last more than about 10 days or get worse after improving.",
       es: "tiene falta de aire, silbidos al respirar, dolor de pecho, fiebre alta, o tose con sangre (llame al 911 si le cuesta respirar o tose sangre); o los síntomas duran más de unos 10 días o empeoran después de mejorar.",
     },
-    products: ["coughdrops", "coldflu", "decongestant", "antihistamine"],
+    products: ["decongestant"], medsAtDesk: true,
   },
   {
     id: "allergy",
@@ -222,18 +210,18 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Avoid the trigger if you know it (pollen, pets, dust) and rinse off after being outdoors.",
-        "An antihistamine can relieve sneezing and itching — follow the label, and note it may cause drowsiness (no driving).",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Evite el desencadenante si lo conoce (polen, mascotas, polvo) y lávese después de estar afuera.",
-        "Un antihistamínico puede aliviar los estornudos y la picazón — siga la etiqueta y recuerde que puede causar somnolencia (no conduzca).",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you have trouble breathing, swelling of the lips, face, eyelids or throat, dizziness or fainting, a weak fast pulse, or vomiting after exposure — that can be anaphylaxis: call 911 right away, even if it's just one or two of these.",
       es: "tiene dificultad para respirar, hinchazón de labios, cara, párpados o garganta, mareo o desmayo, pulso débil y rápido, o vómito tras la exposición — puede ser anafilaxia: llame al 911 de inmediato, aunque sea solo uno o dos de estos síntomas.",
     },
-    products: ["antihistamine"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "stomach",
@@ -241,19 +229,17 @@ const HEALTH_TOPICS = [
     title: { en: "Upset stomach, nausea & heartburn", es: "Malestar estomacal, náuseas y acidez" },
     steps: {
       en: [
-        "Sip small amounts of clear fluids; try bland foods (toast, rice, bananas) and avoid greasy, spicy food and alcohol.",
-        "An antacid can ease heartburn or sour stomach — follow the label (the one here says not to exceed 10 tablets in 24 hours).",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
-        "Tome sorbos pequeños de líquidos claros; pruebe alimentos suaves (pan tostado, arroz, plátano) y evite comida grasosa, picante y el alcohol.",
-        "Un antiácido puede aliviar la acidez o el malestar — siga la etiqueta (el de aquí dice no exceder 10 tabletas en 24 horas).",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you have severe belly pain, vomit blood or have black or bloody stools, can't keep fluids down, or vomiting lasts more than a day (or you show signs of dehydration).",
       es: "tiene dolor abdominal intenso, vomita sangre o tiene heces negras o con sangre, no retiene líquidos, o el vómito dura más de un día (o hay señales de deshidratación).",
     },
-    products: ["antacid", "electrolyte"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "diarrhea",
@@ -261,13 +247,12 @@ const HEALTH_TOPICS = [
     title: { en: "Diarrhea", es: "Diarrea" },
     steps: {
       en: [
-        "The main job is replacing lost fluids: sip water, broth, or an electrolyte drink often.",
-        "As you improve, go back to soft, bland foods.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "An anti-diarrheal can help adults — follow the label, and don't use it if you have bloody or black stool without asking a doctor.",
       ],
       es: [
-        "Lo principal es reponer los líquidos perdidos: tome agua, caldo o una bebida con electrolitos con frecuencia.",
-        "Cuando mejore, vuelva a comidas suaves.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "Un antidiarreico puede ayudar a los adultos — siga la etiqueta, y no lo use si tiene heces con sangre o negras sin consultar a un médico.",
       ],
     },
@@ -275,7 +260,7 @@ const HEALTH_TOPICS = [
       en: "it lasts more than a couple of days (sooner for young children or older adults), you have a fever above 102°F, bloody or black stools, severe belly pain, or signs of dehydration (very dry mouth, little urine, dizziness).",
       es: "dura más de un par de días (antes en niños pequeños o adultos mayores), tiene fiebre de más de 102°F, heces con sangre o negras, dolor abdominal intenso, o señales de deshidratación (boca muy seca, poca orina, mareo).",
     },
-    products: ["antidiarrheal", "electrolyte"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "heat",
@@ -284,18 +269,18 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Get out of the heat into shade or air conditioning, and lie down with your legs slightly raised.",
-        "Sip cool water or an electrolyte drink (no alcohol or caffeine), loosen clothing, and cool the skin with damp cloths.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Salga del calor hacia la sombra o el aire acondicionado, y acuéstese con las piernas ligeramente elevadas.",
-        "Tome sorbos de agua fresca o una bebida con electrolitos (sin alcohol ni cafeína), afloje la ropa y refresque la piel con paños húmedos.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "the person is confused, agitated, faints, has a seizure, can't drink, vomits, or has a body temperature of 104°F or more — that may be heatstroke: call 911. Also seek care if they don't improve.",
       es: "la persona está confundida, agitada, se desmaya, convulsiona, no puede beber, vomita, o tiene temperatura corporal de 104°F o más — puede ser un golpe de calor: llame al 911. También busque atención si no mejora.",
     },
-    products: ["electrolyte", "coldpack"],
+    products: ["coldpack"], medsAtDesk: true,
   },
   {
     id: "sting",
@@ -305,19 +290,19 @@ const HEALTH_TOPICS = [
       en: [
         "If a stinger is stuck in the skin, scrape it out with a straight edge like a credit card (or pull it with tweezers).",
         "Wash with soap and water, then hold a cold pack wrapped in a thin towel on it. Try not to scratch.",
-        "An antihistamine can ease itching — follow the label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Si el aguijón quedó en la piel, sáquelo raspando con un borde recto como una tarjeta (o con pinzas).",
         "Lave con agua y jabón y coloque una compresa fría envuelta en una toalla delgada. Trate de no rascarse.",
-        "Un antihistamínico puede aliviar la picazón — siga la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you have trouble breathing, swelling of the lips, face or throat, dizziness or fainting, a weak fast pulse, or nausea/vomiting — that's a possible severe reaction: call 911.",
       es: "tiene dificultad para respirar, hinchazón de labios, cara o garganta, mareo o desmayo, pulso débil y rápido, o náuseas/vómito — es una posible reacción grave: llame al 911.",
     },
-    products: ["coldpack", "antihistamine", "ointment"],
+    products: ["coldpack", "ointment"], medsAtDesk: true,
   },
   {
     id: "motion",
@@ -326,18 +311,18 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Face forward, look at the horizon, and get fresh air if you can. Avoid reading or screens.",
-        "Eat light and skip alcohol. Motion sickness tablets work best taken before you travel — follow the label (they can cause drowsiness).",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Mire hacia adelante, fije la vista en el horizonte y tome aire fresco si puede. Evite leer o mirar pantallas.",
-        "Coma ligero y evite el alcohol. Las tabletas para el mareo funcionan mejor antes de viajar — siga la etiqueta (pueden causar somnolencia).",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "vomiting won't stop, or you feel dizzy, weak, or dehydrated.",
       es: "el vómito no cesa, o se siente mareado, débil o deshidratado.",
     },
-    products: ["motionsickness"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "cramps",
@@ -346,18 +331,18 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Heat helps: a heating patch on the lower belly, or a warm bath.",
-        "A pain reliever can ease cramps — follow the label. Light exercise and rest can help too.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "El calor ayuda: un parche térmico en el bajo vientre o un baño tibio.",
-        "Un analgésico puede aliviar los cólicos — siga la etiqueta. El ejercicio ligero y el descanso también ayudan.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "the pain is severe or gets in the way of daily life, comes on suddenly and sharply, or bleeding is very heavy (soaking a pad or tampon every hour for several hours).",
       es: "el dolor es intenso o interfiere con la vida diaria, aparece de repente y agudo, o el sangrado es muy abundante (empapa una toalla o tampón cada hora durante varias horas).",
     },
-    products: ["heatpatch", "periodrelief", "ibuprofen", "pads"],
+    products: ["heatpatch", "pads"], medsAtDesk: true,
   },
   {
     id: "musclepain",
@@ -366,18 +351,18 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Keep gently moving — long bed rest usually makes back pain worse.",
-        "Ice for the first day or two, then heat, can ease soreness; a menthol patch or a pain reliever can help — follow each label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
       ],
       es: [
         "Manténgase en movimiento suave — el reposo prolongado en cama suele empeorar el dolor de espalda.",
-        "El hielo el primer día o dos, y luego calor, puede aliviar; un parche de mentol o un analgésico pueden ayudar — siga cada etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
       ],
     },
     seek: {
       en: "you have numbness or weakness in a leg, trouble controlling your bladder or bowels, fever, or the pain followed a fall or injury or isn't improving after a couple of weeks.",
       es: "tiene adormecimiento o debilidad en una pierna, dificultad para controlar la vejiga o el intestino, fiebre, o el dolor siguió a una caída o lesión o no mejora después de un par de semanas.",
     },
-    products: ["patch", "ibuprofen", "acetaminophen", "coldpack"],
+    products: ["patch", "coldpack"], medsAtDesk: true,
   },
   {
     id: "toothache",
@@ -385,11 +370,11 @@ const HEALTH_TOPICS = [
     title: { en: "Toothache", es: "Dolor de muelas" },
     steps: {
       en: [
-        "Rinse with warm water and a pain reliever can ease it for now — follow the label.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "It's temporary relief only: book a dentist visit.",
       ],
       es: [
-        "Enjuague con agua tibia; un analgésico puede aliviarlo por ahora — siga la etiqueta.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
         "Es solo un alivio temporal: programe una visita al dentista.",
       ],
     },
@@ -397,7 +382,7 @@ const HEALTH_TOPICS = [
       en: "your face or jaw is swollen, you have a fever, or it hurts to swallow or breathe — get care right away.",
       es: "tiene la cara o la mandíbula hinchada, fiebre, o le duele al tragar o respirar — busque atención de inmediato.",
     },
-    products: ["ibuprofen", "acetaminophen"],
+    products: [], medsAtDesk: true,
   },
   {
     id: "hygiene",
@@ -423,14 +408,12 @@ const HEALTH_TOPICS = [
     steps: {
       en: [
         "Read the whole label before every use, and never take more than it says.",
-        "Don't combine products that share an active ingredient (for example two with acetaminophen).",
-        "Ask a pharmacist first if you take other medicines, drink alcohol, are pregnant or nursing, or the person is a child.",
+        "Ask the staff before you take any medicine, or eat or drink anything.",
         "Store medicines in a cool, dry place out of children's reach, and don't use them past the expiration date.",
       ],
       es: [
         "Lea toda la etiqueta antes de cada uso y nunca tome más de lo que indica.",
-        "No combine productos con el mismo ingrediente activo (por ejemplo, dos con acetaminofén).",
-        "Consulte primero a un farmacéutico si toma otros medicamentos, bebe alcohol, está embarazada o amamantando, o si es para un niño.",
+        "Pregunte al personal antes de tomar cualquier medicamento o de comer o beber.",
         "Guarde los medicamentos en un lugar fresco y seco, fuera del alcance de los niños, y no los use después de la fecha de vencimiento.",
       ],
     },

@@ -10,8 +10,6 @@
 const CATEGORY_TINTS = {
   emergency: { band: "#F87171", cap: "#DC2626" },
   pain: { band: "#60A5FA", cap: "#2563EB" },
-  coldallergy: { band: "#2DD4BF", cap: "#0D9488" },
-  stomach: { band: "#34D399", cap: "#059669" },
   wellness: { band: "#F472B6", cap: "#DB2777" },
 };
 const DEFAULT_TINT = { band: "#94A3B8", cap: "#64748B" };
@@ -236,11 +234,11 @@ const PRODUCT_ART_SHAPES = {
 let artUidCounter = 0;
 
 // Brand logos in assets/logos; an item without one keeps its drawn packaging.
-const PRODUCT_LOGOS = {"coldpack": "coldpack.png", "acetaminophen": "acetaminophen.png", "antacid": "antacid.png", "antidiarrheal": "antidiarrheal.png", "antihistamine": "antihistamine.png", "aspirin": "aspirin.png", "bandaid": "bandaid.png", "coldflu": "coldflu.png", "coughdrops": "coughdrops.png", "decongestant": "decongestant.svg", "electrolyte": "electrolyte.png", "gauze": "gauze.png", "heatpatch": "heatpatch.svg", "ibuprofen": "ibuprofen.png", "motionsickness": "motionsickness.png", "ointment": "ointment.png", "pads": "pads.png", "patch": "patch.webp", "periodrelief": "periodrelief.png", "pregnancytest": "pregnancytest.png", "sanitizer": "sanitizer.png", "sunscreen": "sunscreen.svg", "tampons": "tampons.png"};
+const PRODUCT_LOGOS = {"coldpack": "coldpack.png", "bandaid": "bandaid.png", "decongestant": "decongestant.svg", "gauze": "gauze.png", "heatpatch": "heatpatch.svg", "ointment": "ointment.png", "pads": "pads.png", "patch": "patch.webp", "pregnancytest": "pregnancytest.png", "sanitizer": "sanitizer.png", "sunscreen": "sunscreen.svg", "tampons": "tampons.png", "tissues": "tissues.png", "earplugs": "earplugs.png", "masks": "masks.png", "cable": "cable.png"};
 // No logo found for this one: the brand's name in plain type, not an imitation of its logo.
-const PRODUCT_BRANDS = {};
+const PRODUCT_BRANDS = {"wipes": "Wet Ones"};
 // White or yellow marks that would vanish on the shared white background; shown solid black (see .logo-mono).
-const MONO_LOGOS = new Set(["ibuprofen", "pads", "periodrelief"]);
+const MONO_LOGOS = new Set(["pads", "earplugs"]);
 function productArtSvg(product) {
   if (PRODUCT_LOGOS[product.id]) return `<img class="product-logo${MONO_LOGOS.has(product.id) ? " logo-mono" : ""}" src="assets/logos/${PRODUCT_LOGOS[product.id]}?v=2" alt="${product.name} logo" />`;
   if (PRODUCT_BRANDS[product.id]) return `<div class="product-wordmark">${PRODUCT_BRANDS[product.id]}</div>`;

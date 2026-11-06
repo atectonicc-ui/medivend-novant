@@ -34,27 +34,9 @@ const PRODUCTS_ES = {
     warnings: "No la aplique directamente sobre la piel desnuda ni sobre heridas abiertas.",
     allergyAlert: "Ninguna conocida.",
   },
-  ibuprofen: {
-    name: "Advil 200mg", dosage: "24 tabletas de 200mg",
-    uses: "Alivia temporalmente dolores menores por dolor de cabeza, dolor muscular, dolor de espalda, artritis leve, cólicos menstruales, dolor de muelas y el resfriado común; reduce temporalmente la fiebre.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 1 tableta cada 4 a 6 horas mientras duren los síntomas. Si el dolor o la fiebre no mejoran con 1 tableta, puede tomar 2 tabletas. No tome más de 6 tabletas en 24 horas a menos que se lo indique un médico. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Advertencia de sangrado estomacal: el riesgo es mayor si tiene 60 años o más, ha tenido úlceras o sangrado estomacal, toma un anticoagulante o un esteroide, toma otros AINE, toma 3 o más bebidas alcohólicas al día, o toma más cantidad o por más tiempo de lo indicado. Advertencia de ataque cardíaco y derrame cerebral: los AINE pueden aumentar el riesgo. No lo use justo antes o después de una cirugía del corazón. Consulte primero a un médico si toma aspirina para el corazón o tiene presión arterial alta, enfermedad del corazón o de los riñones. Embarazo: no lo use a partir de las 20 semanas de embarazo a menos que se lo indique un médico. Deje de usarlo si el dolor dura más de 10 días o la fiebre más de 3 días.",
-    allergyAlert: "El ibuprofeno puede causar una reacción alérgica grave (ronchas, hinchazón de la cara, asma/silbido al respirar, choque). No lo use si alguna vez tuvo una reacción alérgica a cualquier analgésico o reductor de fiebre, incluida la aspirina.",
-  },
-  acetaminophen: {
-    name: "Tylenol Extra Fuerte 500mg", dosage: "24 comprimidos de 500mg",
-    uses: "Alivia temporalmente dolores menores por dolor de cabeza, dolor muscular, dolor de espalda, artritis leve, el resfriado común y dolor de muelas; reduce temporalmente la fiebre.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 2 comprimidos cada 6 horas mientras duren los síntomas. No tome más de 6 comprimidos en 24 horas a menos que se lo indique un médico. No lo use por más de 10 días a menos que se lo indiquen. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Advertencia sobre el hígado: puede ocurrir daño grave al hígado si toma más de 6 comprimidos en 24 horas, lo toma con otros medicamentos que contienen acetaminofén, o toma 3 o más bebidas alcohólicas todos los días. Consulte primero a un médico si tiene enfermedad del hígado o toma el anticoagulante warfarina. Deje de usarlo si el dolor dura más de 10 días o la fiebre más de 3 días. Sobredosis: busque ayuda médica o llame a Control de Envenenamientos de inmediato, aunque se sienta bien.",
-    allergyAlert: "El acetaminofén puede causar reacciones graves en la piel (enrojecimiento, ampollas, sarpullido). Si ocurre una reacción en la piel, deje de usarlo y busque ayuda médica de inmediato.",
-  },
-  aspirin: {
-    name: "Aspirina Bayer 325mg", dosage: "24 tabletas de 325mg",
-    uses: "Alivia temporalmente dolores menores por dolor de cabeza, dolor muscular, artritis leve y dolor de muelas; reduce temporalmente la fiebre.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 1 a 2 tabletas con agua cada 4 horas mientras duren los síntomas. No tome más de 12 tabletas en 24 horas a menos que se lo indique un médico. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Síndrome de Reye: los niños y adolescentes que tienen o se están recuperando de varicela o síntomas parecidos a la gripe no deben usar este producto. Advertencia de sangrado estomacal: el riesgo es mayor si tiene 60 años o más, ha tenido úlceras o sangrado estomacal, toma un anticoagulante o un esteroide, toma otros AINE, toma 3 o más bebidas alcohólicas al día, o toma más cantidad o por más tiempo de lo indicado. Embarazo: no lo use a partir de las 20 semanas de embarazo a menos que se lo indique un médico. Deje de usarlo si el dolor dura más de 10 días o la fiebre más de 3 días, o si siente zumbido en los oídos.",
-    allergyAlert: "La aspirina puede causar una reacción alérgica grave (ronchas, hinchazón de la cara, asma/silbido al respirar, choque). No la use si es alérgico a la aspirina o a cualquier otro analgésico o reductor de fiebre.",
-  },
+
+
+
   patch: {
     name: "Parche Medicado Icy Hot", dosage: "4 parches",
     uses: "Alivia temporalmente dolores menores de músculos y articulaciones por dolor de espalda, artritis, distensiones y torceduras.",
@@ -62,13 +44,7 @@ const PRODUCTS_ES = {
     warnings: "Solo para uso externo. No lo use con una almohadilla térmica, sobre heridas o piel dañada, ni con otros ungüentos o cremas. No lo cubra con un vendaje apretado. Deje de usarlo si tiene irritación excesiva, enrojecimiento o ardor en la piel, o si la afección empeora o dura más de 7 días.",
     allergyAlert: "Ninguna conocida.",
   },
-  periodrelief: {
-    name: "Pamprin Multisíntomas", dosage: "20 comprimidos",
-    uses: "Alivia temporalmente síntomas premenstruales y menstruales, como cólicos, hinchazón, retención de líquidos y dolor de cabeza.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 2 comprimidos con agua cada 6 horas según sea necesario. No tome más de 6 comprimidos en 24 horas. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Contiene acetaminofén. Advertencia sobre el hígado: puede ocurrir daño grave al hígado si toma más de 6 comprimidos en 24 horas, toma otros medicamentos que contienen acetaminofén, o toma 3 o más bebidas alcohólicas todos los días. Puede causar somnolencia; el alcohol, los sedantes y los tranquilizantes la aumentan. Evite manejar u operar maquinaria. Consulte primero a un médico si tiene enfermedad del hígado, glaucoma, un problema respiratorio o dificultad para orinar por agrandamiento de la próstata.",
-    allergyAlert: "El acetaminofén puede causar reacciones graves en la piel (enrojecimiento, ampollas, sarpullido). Si ocurre una reacción en la piel, deje de usarlo y busque ayuda médica de inmediato.",
-  },
+
   heatpatch: {
     name: "Parches de Calor Menstrual ThermaCare", dosage: "3 parches",
     uses: "Da un calor suave y constante que ayuda a aliviar cólicos menstruales y musculares menores.",
@@ -76,27 +52,9 @@ const PRODUCTS_ES = {
     warnings: "No lo aplique directamente sobre la piel desnuda. No lo use mientras duerme.",
     allergyAlert: "Ninguna conocida.",
   },
-  antihistamine: {
-    name: "Benadryl para Alergias 25mg", dosage: "24 tabletas de 25mg",
-    uses: "Alivia temporalmente la nariz que gotea, los estornudos, los ojos llorosos con picazón y la picazón de nariz o garganta por fiebre del heno u otras alergias respiratorias.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 1 a 2 tabletas cada 4 a 6 horas. No tome más de 6 dosis en 24 horas. Niños menores de 12 años: consulte a un médico.",
-    warnings: "No lo use con ningún otro producto que contenga difenhidramina, incluso uno que se aplique en la piel. Consulte primero a un médico si tiene glaucoma, un problema respiratorio como enfisema o bronquitis crónica, o dificultad para orinar por agrandamiento de la próstata. Puede causar somnolencia marcada; el alcohol, los sedantes y los tranquilizantes la aumentan. Evite manejar u operar maquinaria. Puede causar excitación, sobre todo en niños. No lo use para dar sueño a un niño.",
-    allergyAlert: "Ninguna conocida.",
-  },
-  coughdrops: {
-    name: "Pastillas Halls Mentho-Lyptus", dosage: "18 pastillas",
-    uses: "Alivia temporalmente la irritación leve ocasional de la garganta y la tos por resfriado.",
-    instructions: "Deje que una pastilla se disuelva lentamente en la boca. Repita según sea necesario.",
-    warnings: "Peligro de asfixia para niños pequeños: no es para niños menores de 5 años. Deje de usarlo y consulte a un médico si el dolor de garganta es fuerte o dura más de 2 días, o la tos más de 7 días.",
-    allergyAlert: "Ninguna conocida.",
-  },
-  coldflu: {
-    name: "Vicks DayQuil Resfriado y Gripe", dosage: "16 LiquiCaps",
-    uses: "Alivia temporalmente la tos, el dolor del cuerpo, el dolor de cabeza y la fiebre del resfriado común o la gripe.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 2 LiquiCaps con agua cada 4 horas. No tome más de 4 dosis (8 LiquiCaps) en 24 horas. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Advertencia sobre el hígado: contiene acetaminofén; puede ocurrir daño grave al hígado si toma más de lo indicado, toma otros medicamentos que contienen acetaminofén, o toma 3 o más bebidas alcohólicas todos los días. No lo use si toma un IMAO (ciertos medicamentos para la depresión, afecciones psiquiátricas o emocionales, o la enfermedad de Parkinson) ni durante 2 semanas después de dejarlo. Consulte primero a un médico si tiene enfermedad del hígado, enfermedad del corazón, presión arterial alta, enfermedad de la tiroides, diabetes o dificultad para orinar por agrandamiento de la próstata. Deje de usarlo si se siente nervioso, mareado o no puede dormir, o si los síntomas duran más de 7 días o la fiebre más de 3 días. Restringido por edad en este quiosco (dextrometorfano): se requiere identificación con foto válida.",
-    allergyAlert: "Ninguna conocida.",
-  },
+
+
+
   decongestant: {
     name: "Aerosol Nasal Afrin Original", dosage: "0.5 fl oz",
     uses: "Alivia temporalmente la congestión nasal por el resfriado común, la fiebre del heno u otras alergias respiratorias.",
@@ -104,34 +62,10 @@ const PRODUCTS_ES = {
     warnings: "No lo use por más de 3 días: usarlo más tiempo puede empeorar la congestión (congestión de rebote). Consulte primero a un médico si tiene enfermedad del corazón, presión arterial alta, enfermedad de la tiroides, diabetes o dificultad para orinar por agrandamiento de la próstata. No comparta este envase: puede propagar infecciones. Puede causar ardor, picazón o estornudos temporales.",
     allergyAlert: "Ninguna conocida.",
   },
-  antacid: {
-    name: "Tums Extra Fuerte", dosage: "32 tabletas masticables",
-    uses: "Alivia la acidez, la indigestión ácida y el malestar estomacal.",
-    instructions: "Adultos y niños de 12 años en adelante: mastique 2 a 4 tabletas cuando tenga síntomas. No tome más de 10 tabletas en 24 horas, y no use la dosis máxima por más de 2 semanas salvo indicación de un médico.",
-    warnings: "Consulte primero a un médico o farmacéutico si toma un medicamento con receta: los antiácidos pueden interactuar con ciertos medicamentos con receta. No tome más de 10 tabletas en 24 horas.",
-    allergyAlert: "Ninguna conocida.",
-  },
-  electrolyte: {
-    name: "Sobres Pedialyte en Polvo", dosage: "6 sobres",
-    uses: "Ayuda a reponer líquidos y electrolitos perdidos por sudor, deshidratación leve o diarrea.",
-    instructions: "Mezcle un sobre con 8 oz de agua y bébalo.",
-    warnings: "Consulte a un médico si el vómito o la diarrea duran más de 24 horas. Menores de 1 año: consulte a un médico.",
-    allergyAlert: "Ninguna conocida.",
-  },
-  motionsickness: {
-    name: "Dramamine Original", dosage: "8 tabletas",
-    uses: "Previene y trata las náuseas, el vómito y el mareo por movimiento.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 1 a 2 tabletas cada 4 a 6 horas; no tome más de 8 tabletas en 24 horas. Tome la primera dosis de 30 minutos a 1 hora antes de viajar. Niños menores de 12 años: consulte a un médico.",
-    warnings: "Consulte primero a un médico si tiene glaucoma, un problema respiratorio como enfisema o bronquitis crónica, o dificultad para orinar por agrandamiento de la próstata. Puede causar somnolencia marcada; evite el alcohol, los sedantes y los tranquilizantes, y no maneje ni opere maquinaria.",
-    allergyAlert: "Ninguna conocida.",
-  },
-  antidiarrheal: {
-    name: "Imodium A-D", dosage: "12 comprimidos",
-    uses: "Controla los síntomas de la diarrea, incluida la diarrea del viajero.",
-    instructions: "Adultos y niños de 12 años en adelante: tome 2 comprimidos después de la primera evacuación suelta y luego 1 comprimido después de cada evacuación suelta. No tome más de 4 comprimidos en 24 horas. Niños menores de 12 años: consulte a un médico.",
-    warnings: "No lo use si tiene heces con sangre o negras. Consulte primero a un médico si tiene fiebre, moco en las heces o antecedentes de enfermedad del hígado. Deje de usarlo y consulte a un médico si los síntomas empeoran o la diarrea dura más de 2 días. Advertencia sobre el corazón: tomar más de lo indicado puede causar problemas graves del corazón o la muerte.",
-    allergyAlert: "Ninguna conocida.",
-  },
+
+
+
+
   pads: {
     name: "Toallas Always Regulares", dosage: "20 unidades, absorción regular",
     uses: "Para la higiene femenina durante la menstruación.",
@@ -165,6 +99,41 @@ const PRODUCTS_ES = {
     uses: "Ayuda a prevenir las quemaduras de sol.",
     instructions: "Aplíquelo generosamente 15 minutos antes de exponerse al sol; vuelva a aplicarlo cada 2 horas.",
     warnings: "Solo para uso externo. Evite el contacto con los ojos. Menores de 6 meses: consulte a un médico.",
+    allergyAlert: "Ninguna conocida.",
+  },
+  tissues: {
+    name: "Pañuelos Faciales Kleenex", dosage: "Paquete de viaje, 3 x 10 pañuelos",
+    uses: "Pañuelos suaves para la nariz que gotea, los estornudos o las lágrimas.",
+    instructions: "Úselo una vez y tírelo, luego lávese o desinfecte las manos.",
+    warnings: "Un solo uso. Tírelo después de usarlo para ayudar a evitar que se propaguen los gérmenes.",
+    allergyAlert: "Ninguna conocida.",
+  },
+  earplugs: {
+    name: "Tapones para los Oídos Mack's", dosage: "4 pares",
+    uses: "Bloquea el ruido para que pueda descansar mientras espera.",
+    instructions: "Enrolle el tapón hasta que quede delgado, jale la oreja hacia arriba y atrás, introdúzcalo y sosténgalo mientras se expande.",
+    warnings: "No los empuje muy adentro del oído. Quíteselos si duelen. Manténgalos lejos de niños pequeños: peligro de asfixia.",
+    allergyAlert: "Ninguna conocida.",
+  },
+  masks: {
+    name: "Mascarillas Diarias 3M", dosage: "10 mascarillas",
+    uses: "Cubre la nariz y la boca para ayudar a reducir la propagación de gérmenes, como en una sala de espera.",
+    instructions: "Lávese las manos, cubra la nariz y la boca, ajuste el alambre sobre la nariz y cámbiela cuando se humedezca o ensucie.",
+    warnings: "No es un respirador. Un solo uso. No es para menores de 2 años ni para quien no pueda quitársela solo.",
+    allergyAlert: "Ninguna conocida.",
+  },
+  wipes: {
+    name: "Toallitas para Manos Wet Ones", dosage: "20 toallitas",
+    uses: "Limpia las manos y superficies cuando no hay agua y jabón cerca.",
+    instructions: "Saque una toallita, limpie las manos o superficies y tírela. Cierre bien el paquete para que no se sequen.",
+    warnings: "Solo para uso externo. Evite los ojos. Deje de usarlas si la piel se irrita. No las tire al inodoro.",
+    allergyAlert: "Ninguna conocida.",
+  },
+  cable: {
+    name: "Cable de Carga USB-C Anker", dosage: "3 pies, USB-A a USB-C",
+    uses: "Carga un teléfono o tableta con puerto USB-C mientras espera.",
+    instructions: "Conecte el extremo USB-A a un puerto o adaptador de carga y el extremo USB-C a su dispositivo.",
+    warnings: "Manténgalo lejos del agua. No use un cable dañado. No sirve para iPhone con puerto Lightning.",
     allergyAlert: "Ninguna conocida.",
   },
 };

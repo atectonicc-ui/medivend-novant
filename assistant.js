@@ -209,6 +209,11 @@ const Assistant = (function () {
     tampons: ["tampax", "tampons", "tampon"],
     pregnancytest: ["first response", "pregnancy test", "pregnancy tests"],
     sanitizer: ["purell", "hand sanitizer", "sanitizer", "hand gel"],
+    tissues: ["kleenex", "tissues", "tissue", "facial tissues"],
+    earplugs: ["earplugs", "ear plugs", "earplug", "macks earplugs"],
+    masks: ["face masks", "face mask", "masks", "mask"],
+    wipes: ["wet ones", "hand wipes", "wet wipes", "wipes"],
+    cable: ["charging cable", "phone charger", "charger", "usb c cable", "cable"],
     sunscreen: ["coppertone", "sunscreen", "sun screen", "sunblock", "spf 30"],
   };
   const ALIASES = [];
@@ -317,8 +322,8 @@ const Assistant = (function () {
 
   function suggestedPrompts(lang) {
     return lang === "es"
-      ? ["Tengo dolor de cabeza", "¿Qué sirve para la tos?", "¿Cómo trato una quemadura?", "Compara ibuprofeno y acetaminofén", "¿Puedo tomar ibuprofeno con aspirina?", "¿Qué hay en mi carrito?", "¿Dónde está la sala de emergencias más cercana?"]
-      : ["I have a headache", "What's good for a cough?", "How do I treat a burn?", "Compare ibuprofen and acetaminophen", "Can I take ibuprofen with aspirin?", "What's in my cart?", "Where is the nearest ER?"];
+      ? ["Me corté un dedo", "Hay mucho ruido aquí", "¿Cómo trato una quemadura?", "Mi teléfono no tiene batería", "Necesito una mascarilla", "¿Qué hay en mi carrito?", "¿Dónde está la sala de emergencias más cercana?"]
+      : ["I cut my finger", "It's too loud in here", "How do I treat a burn?", "My phone is dead", "I need a face mask", "What's in my cart?", "Where is the nearest ER?"];
   }
 
   // Offer an available alternative if the top match can't be sold right now.
@@ -394,8 +399,8 @@ const Assistant = (function () {
       R.say(R.L("Call Poison Control at 1-800-222-1222 right now (free, 24/7) — or 911 if the person is very sleepy, hard to wake, having trouble breathing, or having a seizure. This machine can't help with this.",
         "Llame a Control de Envenenamientos al 1-800-222-1222 ahora mismo (gratis, 24/7) — o al 911 si la persona está muy somnolienta, cuesta despertarla, le cuesta respirar o tiene una convulsión. Esta máquina no puede ayudar con esto."), "warn");
     } else {
-      R.say(R.L("This could be a medical emergency. Please call 911 or go to the nearest emergency room right now — this machine can't help with this.",
-        "Esto podría ser una emergencia médica. Llame al 911 o vaya a la sala de emergencias más cercana ahora mismo — esta máquina no puede ayudar con esto."), "warn");
+      R.say(R.L("This could be a medical emergency. Tell the staff at the front desk right now, or call 911 — this machine can't help with this.",
+        "Esto podría ser una emergencia médica. Avise ahora mismo al personal de la recepción o llame al 911 — esta máquina no puede ayudar con esto."), "warn");
     }
     return true;
   }
@@ -582,8 +587,8 @@ const Assistant = (function () {
       return true;
     }
     if (rx(p, /^(help|help me|i need help|what can you do|how can you help( me)?|what can i ask( you)?|what do you know|what questions can i ask|capabilities|menu|options|commands)( please)?$/)) {
-      R.say(L("Here's what I can do:\n• Suggest items for symptoms (\"I have a sore throat\")\n• Answer label questions (\"warnings for aspirin?\")\n• Compare products (\"ibuprofen vs acetaminophen\")\n• Check combinations (\"can I take these together?\")\n• Share first-aid steps (\"how do I treat a burn?\")\n• Manage your cart (\"add 2 bandages\", \"checkout\")\n• Find nearby ERs, urgent care & pharmacies\nI also understand Spanish!",
-        "Esto es lo que puedo hacer:\n• Sugerir artículos para síntomas (\"tengo dolor de garganta\")\n• Responder preguntas de etiquetas (\"¿advertencias de la aspirina?\")\n• Comparar productos (\"ibuprofeno vs acetaminofén\")\n• Revisar combinaciones (\"¿puedo tomar estos juntos?\")\n• Compartir primeros auxilios (\"¿cómo trato una quemadura?\")\n• Manejar su carrito (\"agrega 2 vendas\", \"pagar\")\n• Encontrar salas de emergencia, atención urgente y farmacias cercanas\n¡También entiendo inglés!"));
+      R.say(L("Here's what I can do:\n• Suggest items for symptoms (\"I have a sore throat\")\n• Answer label questions (\"warnings for Neosporin?\")\n• Compare products (\"Band-Aid vs gauze\")\n• Share first-aid steps (\"how do I treat a burn?\")\n• Manage your cart (\"add 2 bandages\", \"checkout\")\n• Find nearby ERs, urgent care & pharmacies\nI also understand Spanish!",
+        "Esto es lo que puedo hacer:\n• Sugerir artículos para síntomas (\"tengo dolor de garganta\")\n• Responder preguntas de etiquetas (\"¿advertencias de Neosporin?\")\n• Comparar productos (\"Band-Aid vs gasa\")\n• Compartir primeros auxilios (\"¿cómo trato una quemadura?\")\n• Manejar su carrito (\"agrega 2 vendas\", \"pagar\")\n• Encontrar salas de emergencia, atención urgente y farmacias cercanas\n¡También entiendo inglés!"));
       defaultChips(R);
       return true;
     }
@@ -1057,6 +1062,8 @@ const Assistant = (function () {
     return `${tp.title[R.lang]}:\n${steps.map((s) => "• " + s).join("\n")}`;
   }
 
+  const STAFF_NOTE = { en: "This kiosk doesn't sell any medicine you swallow. If you think you need some, please ask the staff at the front desk or your care team.", es: "Este quiosco no vende medicamentos que se tragan. Si cree que necesita alguno, pregunte al personal de la recepción o a su equipo de atención." };
+
   function handleHealth(p, keep, R, ctx) {
     const L = R.L;
     const topics = findTopics(p).slice(0, 2);
@@ -1077,6 +1084,7 @@ const Assistant = (function () {
       if (res.type === "products") list.push(...res.products);
       topics.forEach((tp) => tp.products.forEach((id) => { const x = PRODUCTS.find((y) => y.id === id); if (x && !list.includes(x)) list.push(x); }));
 
+      const atDesk = topics.some((tp) => tp.medsAtDesk);
       if (topics[0].id === "whentogo" || topics[0].id === "safety" || topics[0].id === "poison") {
         R.say(stepsBlock(R, topics[0]));
         R.say(FIRSTAID_SOURCE[R.lang], "system");
@@ -1102,6 +1110,7 @@ const Assistant = (function () {
           if (avail[0]) { R.pending = { type: "add", ids: [avail[0].id] }; R.chip(`Add ${avail[0].name}`, `Agregar ${avail[0].name}`); }
           R.last = show[0]; R.lastList = show;
         }
+        if (atDesk) R.say(R.L(STAFF_NOTE.en, STAFF_NOTE.es));
         R.say(FIRSTAID_SOURCE[R.lang], "system");
         R.chip("When should I see a doctor?", "¿Cuándo debo ir al médico?");
         R.chip("Where is the nearest ER?", "¿Dónde está la sala de emergencias más cercana?");
@@ -1115,6 +1124,7 @@ const Assistant = (function () {
         ? L(`Sorry you're dealing with ${topics.map((x) => x.title.en.split(/[,&]/)[0].trim().toLowerCase()).join(" and ")}. `, `Lamento que tenga ${topics.map((x) => x.title.es.split(/[,]| y /)[0].trim().toLowerCase()).join(" y ")}. `) + (shown.length ? L(`From this kiosk, these could help: ${shown.slice(0, 3).map((x) => x.name).join(", ")}.`, `De este quiosco, esto podría ayudar: ${shown.slice(0, 3).map((x) => x.name).join(", ")}.`) : L("Here's what can help:", "Esto puede ayudar:"))
         : L("Sorry you're dealing with that. ", "Lamento que esté pasando por eso. ") + (shown.length ? (shown.length === 1 ? L(`Here's what's labeled for that: ${shown[0].name}.`, `Esto está etiquetado para eso: ${shown[0].name}.`) : L(`Options labeled for that: ${shown.map((x) => x.name).join(", ")}.`, `Un par de opciones que deberían ayudar: ${shown.map((x) => x.name).join(", ")}.`)) : ""));
       R.products = shown;
+      if (atDesk) R.say(R.L(STAFF_NOTE.en, STAFF_NOTE.es));
       topics.forEach((tp) => {
         R.say(L(`Self-care tips (${tp.title.en}):\n${tp.steps.en.slice(0, 2).map((s) => "• " + s).join("\n")}`, `Cuidados en casa (${tp.title.es}):\n${tp.steps.es.slice(0, 2).map((s) => "• " + s).join("\n")}`));
         if (tp.seek[R.lang]) R.say(L(`Get medical help if: ${tp.seek.en}`, `Busque atención médica si: ${tp.seek.es}`), "warn");
@@ -1262,7 +1272,6 @@ const Assistant = (function () {
     if (handleCart(p, R, ctx, prods)) return finish(R, ctx);
     const labelTarget = prods.length === 1 ? prods[0] : !prods.length && (usesPronoun || /^how much is$/.test(p)) ? ctx.lastProduct : null;
     if (labelTarget && handleLabelQuestion(p, R, labelTarget)) return finish(R, ctx);
-    if (prods.length < 2 && handleBrand(p, R)) return finish(R, ctx);
     if (!prods.length && handleListQuestion(p, R, ctx)) return finish(R, ctx);
     // "what's the difference" after looking at two items
     if (!prods.length && /\b(difference|compare|which is better)\b/.test(p)) {
@@ -1288,7 +1297,7 @@ const Assistant = (function () {
     if (askedIds.length && !prods.length && askedIds.some((id) => productConflicts(PRODUCTS.find((x) => x.id === id), cond).length)) return finish(R, ctx);
     if (usesPronoun && !ctx.lastProduct && isQuestionLike(p)) {
       R.say(R.L("Which item do you mean? Tell me its name and I'll check the label.", "¿A qué artículo se refiere? Dígame el nombre y reviso la etiqueta."));
-      R.say(R.L("If this is about something serious or sudden, call 911 now.", "Si se trata de algo grave o repentino, llame al 911 ahora."), "warn");
+      R.say(R.L("If this is about something serious or sudden, tell the staff at the front desk right away, or call 911.", "Si se trata de algo grave o repentino, avise de inmediato al personal de la recepción o llame al 911."), "warn");
       defaultChips(R);
       return finish(R, ctx);
     }
@@ -1306,10 +1315,10 @@ const Assistant = (function () {
     } else {
       const isQ = typeof isQuestionLike === "function" && isQuestionLike(raw);
       R.say(isQ
-        ? R.L("I can really only speak to this kiosk's items, first aid, and how the kiosk works — try naming an item, like \"what are the warnings for ibuprofen?\", or describe a symptom like \"sore throat\".", "Solo puedo hablar de los artículos del quiosco, primeros auxilios y cómo funciona el quiosco — intente nombrar un artículo, como \"¿cuáles son las advertencias del ibuprofeno?\", o describa un síntoma como \"dolor de garganta\".")
+        ? R.L("I can really only speak to this kiosk's items, first aid, and how the kiosk works — try naming an item, like \"what are the warnings for Neosporin?\", or describe a symptom like \"sore throat\".", "Solo puedo hablar de los artículos del quiosco, primeros auxilios y cómo funciona el quiosco — intente nombrar un artículo, como \"¿cuáles son las advertencias de Neosporin?\", o describa un síntoma como \"dolor de garganta\".")
         : R.L("I didn't catch that one. Try telling me what hurts or what happened, like \"my knee hurts\" or \"I cut my finger,\" and I'll see what this kiosk has.", "No entendí bien. Dígame qué le duele o qué pasó, como \"me duele la rodilla\" o \"me corté un dedo\", y veré qué tiene este quiosco."));
       // Rules can't list every emergency: anything unrecognized gets the way out, not just a shrug.
-      R.say(R.L("If this feels serious or sudden, call 911 now. Otherwise a pharmacist or urgent care nearby can help.", "Si esto parece grave o repentino, llame al 911 ahora. De lo contrario, un farmacéutico o atención urgente cercana pueden ayudar."), "warn");
+      R.say(R.L("If this feels serious or sudden, tell the staff at the front desk right away, or call 911.", "Si esto parece grave o repentino, avise de inmediato al personal de la recepción o llame al 911."), "warn");
       defaultChips(R);
     }
     R.care = true;
@@ -1343,7 +1352,7 @@ const Assistant = (function () {
     [BODY_ACHE, "muscle pain"], [/\bmy back (has been |keeps |is |is really |really )?(killing me|hurting|hurts?|sore|aches?|aching|acting up|bothering me|stiff)\b/, "back pain"],
     [/\b(my )?(stomach|belly|tummy|gut) (is )?(killing me|acting up|messed up|hurts?|bothering me)\b/, "upset stomach"], [/\b(my )?throat (is )?(killing me|on fire|raw|hurts?|sore)\b/, "sore throat"], [/\b(my )?(tooth|teeth|molar) (is |are )?(killing me|hurts?|aches?|throbbing)\b/, "toothache"], [/\bear ?ache\b|\b(my )?ear (is )?(killing me|hurts?|aches?)\b/, "earache"],
     [/\b(my )?head (is )?(splitting|pounding|throbbing|killing me)\b|\bbad head\b/, "headache"], [/\bstuffed up nose\b|\bnose is stuffed\b/, "stuffy nose"], [/\b(nose is dripping|dripping nose)\b/, "runny nose"],
-    [/\b(tummy|belly) ?ache\b|\bsour stomach\b|\bate too much( and feel sick)?\b/, "upset stomach"], [/\blower back( ache| hurts)?\b/, "back pain"], [/\bpulled (a|my) muscle\b|\bsore muscles?\b|\bstiff neck from sleeping( wrong)?\b/, "muscle pain"],
+    [/\b(tummy|belly) ?ache\b|\bsour stomach\b|\bate too much( and feel sick)?\b/, "upset stomach"], [/\blower back( ache| hurts)?\b|\b(?:sore|stiff|achy) back\b/, "back pain"], [/\bpulled (a|my) muscle\b|\bsore muscles?\b|\bstiff neck from sleeping( wrong)?\b|\b(?:sore|stiff|achy) (?:neck|shoulders?|knees?|hips?|elbows?|wrists?|ankles?|feet|foot|legs?|arms?|hands?|fingers?|thumbs?|toes?|calf|calves|thighs?|shins?)\b/, "muscle pain"],
     [/\b(i )?(think i )?ate something (bad|off|weird)\b|\bfood poisoning\b/, "upset stomach"], [/\bblocked nose\b/, "stuffy nose"], [/\bgoing to the beach\b|\bat the beach\b/, "sunscreen"], [/\bachy all over\b/, "body aches"], [/\bsweat a lot( and feel drained)?\b/, "dehydrated"], [/\b(get |feel )?(nauseous|sick) on (a )?(planes?|boats?|cars?|trains?)\b|\bgoing on a boat( and get sick)?\b/, "motion sickness"],
     [/\bskinned my \w+\b/, "scrape"], [/\bno soap( around)?\b/, "hand sanitizer"], [/\bmosquito bites?( itch)?\b/, "bug bite"], [/\bdont want to burn( in the sun)?\b/, "sunscreen"],
   ];
@@ -1539,6 +1548,7 @@ const Assistant = (function () {
     const e = detectConditions(q).allergy ? null : entryIn(q); // "allergic to aspirin, what do you have" isn't asking what has aspirin
     if (!e) return false;
     const holders = (ids) => PRODUCTS.filter((x) => ids.includes(x.id));
+    if (!holders(e.ids).length) return false; // nothing here contains it
     const lines = (list) => list.map((x) => `• ${x.name}`).join("\n");
     const without = /\b(not|without|free of|non|sin)\b/.test(q);
     if (/\b(which|what)\b.*\b(contain|contains|have|has|with|without|not)\b/.test(q) && (without || !findProducts(q.replace(new RegExp(`\\b(?:${e.re})\\b`, "g"), "")).length)) {
@@ -1547,7 +1557,7 @@ const Assistant = (function () {
       R.products = list.slice(0, 3); R.lastList = list;
       return true;
     }
-    if (e.what && /^(what is|whats|que es)\b/.test(q) && !/\b(price|cost|used|use|uses|for|do|does|run)\b/.test(q) && q.split(" ").length <= 6 && !/\bfor$/.test(q) && !Object.keys(BRANDS).some((b) => has(q, b))) {
+    if (e.what && /^(what is|whats|que es)\b/.test(q) && !/\b(price|cost|used|use|uses|for|do|does|run)\b/.test(q) && q.split(" ").length <= 6 && !/\bfor$/.test(q) ) {
       R.say(L(`${e.name.en[0].toUpperCase() + e.name.en.slice(1)} is ${tr(e.what)} Found in:\n${lines(holders(e.ids))}\n${holders(e.ids)[0].name} is used for: ${holders(e.ids)[0].uses}`, `${e.name.es[0].toUpperCase() + e.name.es.slice(1)} es ${tr(e.what)} Se encuentra en:\n${lines(holders(e.ids))}\n${holders(e.ids)[0].name} se usa para: ${holders(e.ids)[0].uses}`));
       return true;
     }
@@ -1557,13 +1567,17 @@ const Assistant = (function () {
   // ---- honest "we don't carry that" ----
   // Checked before product matching so "tylenol pm" can't be answered as plain Tylenol.
   const NOT_CARRIED = [
+    // This kiosk sits in a care waiting room: nothing is sold that you swallow.
+    { re: /\b(advil|ibuprofen|ibuprofeno|motrin|tylenol|acetaminophen|acetaminofen|paracetamol|bayer|aspirin|aspirina|pamprin|midol|benadryl|diphenhydramine|halls|cough drops?|lozenges?|dayquil|nyquil|tums|antacids?|pedialyte|electrolytes?|dramamine|imodium|loperamide|aleve|naproxen|zyrtec|claritin|allegra|pepto|mucinex|sudafed|melatonin|pain (?:pills?|meds|medicine|medication|relievers?|killers?)|painkillers?|pills?|tablets?|caplets?|cold medicine|cough (?:syrup|medicine)|allergy (?:pills?|medicine|meds)|something to (?:take|swallow)|medicine for|medicina|pastillas?|jarabe)\b/, en: "This kiosk doesn't sell any medicine you swallow. If you think you need some, please ask the staff at the front desk or your care team.",
+      es: "Este quiosco no vende medicamentos que se tragan. Si cree que necesita alguno, pregunte al personal de la recepción o a su equipo de atención." },
+    { re: /\b(water|snacks?|food|hungry|thirsty|gum|candy|mints?|coffee|juice|soda|drinks?|comida|agua|hambre|sed|chicle|dulces?)\b/, en: "This kiosk doesn't sell food, drinks, gum or mints. Please ask the staff at the front desk before you eat or drink anything while you wait.", es: "Este quiosco no vende comida, bebidas, chicle ni mentas. Pregunte al personal de la recepción antes de comer o beber algo mientras espera." },
     { re: /\b(hit|poked|punched|elbowed|smacked)\b.{0,20}\b(in|on) (the|my) eye\b/, closest: "coldpack", care: true, en: "Hold a wrapped cold pack gently on it, without pressing on the eye. Go to the ER for vision changes, severe pain, blood in the eye, or if you can't move the eye normally:", es: "Ponga una compresa fría envuelta suavemente, sin presionar el ojo. Vaya a emergencias si hay cambios en la vista, dolor fuerte, sangre en el ojo o no puede moverlo normalmente:" },
     { re: /\b(dry|burning|itchy red|irritated|red) eyes?\b|\beyes? (are|is) (dry|burning|red|irritated)\b/, care: true, en: "This kiosk doesn't carry eye products. Rest your eyes and a pharmacy can suggest lubricating drops. See a doctor for pain, vision changes or discharge:", es: "Este quiosco no tiene productos para los ojos. Descanse la vista; una farmacia puede sugerir gotas lubricantes. Vea a un médico si hay dolor, cambios en la vista o secreción:" },
     { re: /\bhiccups?\b|\bhipo\b/, en: "Hiccups usually pass on their own. Sipping cold water or holding your breath briefly may help. See a doctor if they last more than 2 days.", es: "El hipo suele pasar solo. Beber agua fría a sorbos o aguantar la respiración brevemente puede ayudar. Vea a un médico si dura más de 2 días." },
     { re: /\b(tired|exhausted|no energy|fatigue|cansad\w*) (all the time|constantly|every day|for weeks)\b|\balways (tired|exhausted)\b/, care: true, en: "Nothing here treats ongoing tiredness. Sleep, stress, low iron, thyroid problems and more can cause it, so if it's lasted over two weeks, see a doctor:", es: "Nada aquí trata el cansancio continuo. El sueño, el estrés, falta de hierro, problemas de tiroides y más pueden causarlo; si dura más de dos semanas, vea a un médico:" },
-    { re: /\b(poison (ivy|oak|sumac)|hiedra venenosa)\b/, closest: "antihistamine", care: true, en: "Wash the skin and clothes with soap and water right away, and don't scratch. Benadryl may ease itching, though a pharmacy has creams we don't carry. See a doctor if it's on your face or genitals, or covers a large area:", es: "Lave la piel y la ropa con agua y jabón de inmediato, y no se rasque. Benadryl puede aliviar la picazón, aunque una farmacia tiene cremas que no tenemos. Vea a un médico si está en la cara o los genitales, o cubre un área grande:" },
-    { re: /\b(canker sores?|mouth sores?|afta|aftas|llaga en la boca)\b/, closest: "acetaminophen", care: true, en: "Canker sores usually heal in 1 to 2 weeks. Avoid spicy or acidic food, and a pain reliever can ease it. See a dentist or doctor if one lasts over 3 weeks:", es: "Las aftas suelen sanar en 1 a 2 semanas. Evite comidas picantes o ácidas, y un analgésico puede aliviar. Vea a un dentista o médico si dura más de 3 semanas:" },
-    { re: /\bearache\b/, closest: "acetaminophen", care: true, en: "This kiosk has nothing for inside the ear, and an earache can be an infection, so see a clinic if it lasts more than a day or two or comes with fever. A pain reliever can ease it in the meantime:", es: "Este quiosco no tiene nada para el oído, y el dolor puede ser una infección; vea una clínica si dura más de uno o dos días o hay fiebre. Un analgésico puede aliviarlo mientras tanto:" },
+    { re: /\b(poison (ivy|oak|sumac)|hiedra venenosa)\b/, care: true, en: "Wash the skin and clothes with soap and water right away, and don't scratch. A pharmacy has anti-itch creams we don't carry. See a doctor if it's on your face or genitals, or covers a large area:", es: "Lave la piel y la ropa con agua y jabón de inmediato, y no se rasque. Una farmacia tiene cremas para la picazón que no tenemos. Vea a un médico si está en la cara o los genitales, o cubre un área grande:" },
+    { re: /\b(canker sores?|mouth sores?|afta|aftas|llaga en la boca)\b/, care: true, en: "Canker sores usually heal in 1 to 2 weeks. Avoid spicy or acidic food. See a dentist or doctor if one lasts over 3 weeks:", es: "Las aftas suelen sanar en 1 a 2 semanas. Evite comidas picantes o ácidas. Vea a un dentista o médico si dura más de 3 semanas:" },
+    { re: /\bearache\b/, care: true, en: "This kiosk has nothing for inside the ear, and an earache can be an infection, so see a clinic if it lasts more than a day or two or comes with fever. Ask the staff before taking anything for the pain:", es: "Este quiosco no tiene nada para el oído, y el dolor puede ser una infección; vea una clínica si dura más de uno o dos días o hay fiebre. Pregunte al personal antes de tomar algo para el dolor:" },
     { re: /\b(generic|store brand|off brand|unbranded|genericos?|marca blanca)\b/, en: "Everything here is a name brand, so there's no generic version. Ask me about the ingredient and I'll show you the brand that has it.", es: "Todo aquí es de marca, así que no hay versión genérica. Pregúnteme por el ingrediente y le muestro la marca que lo tiene." },
     { re: /\b(acne|pimples?|eczema|psoriasis|hemorrhoids?|dandruff|athletes foot|ringworm|warts?|acne|eczema|hemorroides|caspa)\b/, care: true, en: "This kiosk doesn't carry anything for that. A pharmacist can suggest an over-the-counter option, or see a doctor if it's spreading, painful or not improving:", es: "Este quiosco no tiene nada para eso. Un farmacéutico puede sugerir una opción de venta libre, o vea a un médico si se extiende, duele o no mejora:" },
     { re: /\b(birth control|the pill|contraceptives?|anticonceptivos?)\b/, care: true, en: "This kiosk doesn't carry birth control. A pharmacy or clinic can help, and some pills are sold without a prescription:", es: "Este quiosco no tiene anticonceptivos. Una farmacia o clínica puede ayudar, y algunas pastillas se venden sin receta:" },
@@ -1577,7 +1591,7 @@ const Assistant = (function () {
     { re: /\b(blood|sangre)\b.{0,12}\b(pee|urine|orina)\b/, care: true, en: "Blood in your urine needs a doctor today. Nothing here treats it. Go to urgent care, or the ER if you can't pee or have severe pain:", es: "Sangre en la orina necesita un médico hoy. Nada aquí la trata. Vaya a atención urgente, o a emergencias si no puede orinar o tiene dolor fuerte:" },
     { re: /\b(fever|fiebre)\b.{0,25}\b(rash|sarpullido)\b|\b(rash|sarpullido)\b.{0,25}\b(fever|fiebre)\b/, care: true, en: "A fever with a rash needs a doctor today. Go to the ER right away if the rash doesn't fade when you press on it, spreads fast, or you feel very sick:", es: "Fiebre con sarpullido necesita un médico hoy. Vaya a emergencias de inmediato si el sarpullido no desaparece al presionarlo, se extiende rápido o se siente muy mal:" },
     { re: /\b(strep|white spots|white patches|amigdalitis|tonsillitis)\b/, care: true, en: "That can be strep, which needs a test and antibiotics from a clinic. Go to urgent care. Nothing here treats the infection itself:", es: "Eso puede ser faringitis estreptocócica, que necesita una prueba y antibióticos de una clínica. Vaya a atención urgente. Nada aquí trata la infección:" },
-    { re: /\b(throwing up|vomiting|vomit\w*|diarrhea|diarrea)\b.{0,20}\b(for|past)\s+(\d|two|three|several|a few|days?)\b.{0,8}\b(days?)\b|\bcant stop (throwing up|vomiting)\b/, closest: "electrolyte", care: true, en: "That's long enough that you should see a doctor today, especially if you can't keep fluids down, as dehydration can get serious. Sip fluids; an electrolyte packet can help:", es: "Eso ya es suficiente para ver a un médico hoy, sobre todo si no retiene líquidos, porque la deshidratación puede ser grave. Beba a sorbos; un sobre de electrolitos puede ayudar:" },
+    { re: /\b(throwing up|vomiting|vomit\w*|diarrhea|diarrea)\b.{0,20}\b(for|past)\s+(\d|two|three|several|a few|days?)\b.{0,8}\b(days?)\b|\bcant stop (throwing up|vomiting)\b/, care: true, en: "That's long enough that you should see a doctor today, especially if you can't keep fluids down, as dehydration can get serious. Sip fluids; an electrolyte packet can help:", es: "Eso ya es suficiente para ver a un médico hoy, sobre todo si no retiene líquidos, porque la deshidratación puede ser grave. Beba a sorbos; un sobre de electrolitos puede ayudar:" },
     { re: /\b(bleach|chemical|cleaner|drain cleaner|acid|cloro|lejia|quimico)\b.{0,15}\b(on|in|en)\b.{0,8}\b(my|his|her|their|the|mi)?\s*(hand|skin|arm|leg|face|mano|piel|brazo|cara)\b/, en: "Rinse the skin with cool running water for at least 20 minutes and take off anything it splashed on. Call Poison Control at 1-800-222-1222. Go to the ER for burns or severe pain.", es: "Enjuague la piel con agua fría durante al menos 20 minutos y quítese lo que se haya salpicado. Llame a Control de Envenenamientos al 1-800-222-1222. Vaya a emergencias si hay quemaduras o dolor fuerte." },
     { re: /\b(out of|ran out|run out|lost|forgot|sin)\b.{0,15}\b(insulin|insulina|inhaler|blood pressure (pills?|meds?|medicine)|seizure (meds?|medicine)|heart (meds?|medicine)|medication|prescription|meds)\b/, care: true, en: "Don't wait on that. Nothing here replaces prescription medicine. Call your pharmacy or doctor now about an emergency refill, or go to urgent care. Running out of insulin or heart medicine can get dangerous quickly, so go to the ER if you feel unwell:", es: "No lo deje para después. Nada aquí reemplaza un medicamento con receta. Llame ahora a su farmacia o médico para un resurtido de emergencia, o vaya a atención urgente. Quedarse sin insulina o medicina del corazón puede ser peligroso; vaya a emergencias si se siente mal:" },
     { re: /\b(baby|infant|newborn|bebe)\b.{0,15}\bsunburn\b|\bsunburn\b.{0,15}\b(baby|infant|newborn|bebe)\b/, care: true, en: "A sunburned baby under 1 needs a doctor today. Keep them out of the sun and offer fluids. Nothing here is labeled for babies:", es: "Un bebé menor de 1 año con quemadura de sol necesita un médico hoy. Manténgalo fuera del sol y ofrézcale líquidos. Nada aquí está etiquetado para bebés:" },
@@ -1587,17 +1601,17 @@ const Assistant = (function () {
     { re: /\b(cold sores?|fever blisters?|herpes|abreva|fuego labial)\b/, care: true, en: "This kiosk doesn't carry cold sore treatment. A pharmacy sells it without a prescription. See a doctor if it's near your eye or doesn't heal in two weeks:", es: "Este quiosco no tiene tratamiento para el herpes labial. Una farmacia lo vende sin receta. Vea a un médico si está cerca del ojo o no sana en dos semanas:" },
     { re: /\b(diaper rash|rozadura|pañalitis|panalitis|teething|teeth coming in|denticion|orajel)\b/, care: true, en: "This kiosk doesn't carry baby products, and nothing here is labeled for babies. A pharmacist or your pediatrician can help:", es: "Este quiosco no tiene productos para bebés, y nada aquí está etiquetado para ellos. Un farmacéutico o su pediatra pueden ayudarle:" },
     { re: /\b(something|dirt|sand|an eyelash|debris|chemical|bleach|algo) (in|into|en) (my|his|her|their|el|mi) (eye|eyes|ojo|ojos)\b/, care: true, en: "Rinse your eye with clean water for several minutes and don't rub it. Go to urgent care if it still hurts or your vision changes. For chemicals, keep rinsing for 15 minutes and call Poison Control at 1-800-222-1222:", es: "Enjuague el ojo con agua limpia varios minutos y no lo frote. Vaya a atención urgente si sigue doliendo o cambia su vista. Con químicos, siga enjuagando 15 minutos y llame a Control de Envenenamientos al 1-800-222-1222:" },
-    { re: /\b(tylenol pm|advil pm|zzzquil|unisom|sleep aid|sleeping pills?|melatonina?|cant sleep|insomnia|pastillas para dormir)\b/, closest: null, care: false,
+    { re: /\b(tylenol pm|advil pm|zzzquil|unisom|sleep aid|sleeping pills?|melatonina?|cant sleep(?!.*\b(?:noisy|loud|noise)\b)|insomnia|pastillas para dormir)\b/, closest: null, care: false,
       en: "This kiosk doesn't carry sleep aids or melatonin. A regular bedtime, a dark cool room, and no screens or caffeine late in the day can help; see a doctor if poor sleep lasts more than a couple of weeks.",
       es: "Este quiosco no tiene productos para dormir ni melatonina. Un horario fijo, un cuarto oscuro y fresco, y evitar pantallas y cafeína por la noche pueden ayudar; consulte a un médico si dura más de un par de semanas." },
-    { re: /\b(nyquil|nighttime cold)\b/, closest: "coldflu", en: "We don't carry NyQuil or any nighttime formula. The closest item is daytime, so it won't help you sleep:", es: "No tenemos NyQuil ni fórmulas de noche. Lo más cercano es de día, así que no le ayudará a dormir:" },
-    { re: /\b(aleve|naproxen|naproxeno)\b/, closest: "ibuprofen", en: "We don't carry Aleve (naproxen). The closest item is another NSAID. Never take the two together:", es: "No tenemos Aleve (naproxeno). Lo más cercano es otro AINE. Nunca tome los dos juntos:" },
+    { re: /\b(nyquil|nighttime cold)\b/, en: "We don't carry NyQuil or any nighttime formula. The closest item is daytime, so it won't help you sleep:", es: "No tenemos NyQuil ni fórmulas de noche. Lo más cercano es de día, así que no le ayudará a dormir:" },
+    { re: /\b(aleve|naproxen|naproxeno)\b/, en: "We don't carry Aleve (naproxen). The closest item is another NSAID. Never take the two together:", es: "No tenemos Aleve (naproxeno). Lo más cercano es otro AINE. Nunca tome los dos juntos:" },
     { re: /\b(childrens?( s)?|infants?( s)?|kids?( s)?|pediatric|liquid) (motrin|tylenol|advil|ibuprofen|acetaminophen|benadryl|medicine|cold medicine|fever medicine)\b/, closest: null, care: true,
       en: "This kiosk doesn't carry children's medicine: everything here is labeled for older kids and adults. Please don't split adult tablets. A pharmacist can give you the right product and dose:", es: "Este quiosco no tiene medicinas para niños: todo está etiquetado para niños mayores y adultos. No parta tabletas de adulto. Un farmacéutico puede darle el producto y la dosis correctos:" },
     { re: /\b(bengay|biofreeze|tiger balm)\b/, closest: "patch", en: "We don't carry that brand. The closest item is a menthol patch, Icy Hot:", es: "No tenemos esa marca. Lo más cercano es un parche de mentol:" },
-    { re: /\b(zyrtec|claritin|allegra|cetirizine|loratadine|non drowsy allergy)\b/, closest: "antihistamine", en: "We don't carry non-drowsy allergy medicine. The closest item can make you very drowsy:", es: "No tenemos antialérgicos que no den sueño. Lo más cercano puede dar mucho sueño:" },
+    { re: /\b(zyrtec|claritin|allegra|cetirizine|loratadine|non drowsy allergy)\b/, en: "We don't carry non-drowsy allergy medicine. The closest item can make you very drowsy:", es: "No tenemos antialérgicos que no den sueño. Lo más cercano puede dar mucho sueño:" },
     { re: /\b(sudafed|pseudoephedrine|mucinex|guaifenesin)\b/, closest: "decongestant", en: "We don't carry that. The closest item for congestion is a nasal spray:", es: "No tenemos eso. Lo más cercano para la congestión es un aerosol nasal:" },
-    { re: /\b(pepto|bismuth)\b/, closest: "antacid", en: "We don't carry Pepto-Bismol. The closest item for an upset stomach is an antacid:", es: "No tenemos Pepto-Bismol. Lo más cercano para el malestar estomacal es un antiácido:" },
+    { re: /\b(pepto|bismuth)\b/, en: "We don't carry Pepto-Bismol. The closest item for an upset stomach is an antacid:", es: "No tenemos Pepto-Bismol. Lo más cercano para el malestar estomacal es un antiácido:" },
     { re: /\b(thermometers?|termometro)\b/, care: true, en: "This kiosk doesn't carry thermometers. A nearby pharmacy will:", es: "Este quiosco no tiene termómetros. Una farmacia cercana sí:" },
     { re: /\b(covid|flu test|rapid test)\b/, care: true, en: "This kiosk doesn't carry COVID or flu tests. A nearby pharmacy will:", es: "Este quiosco no tiene pruebas de COVID ni de gripe. Una farmacia cercana sí:" },
     { re: /\b(plan b|morning after|emergency contraception|anticonceptivo de emergencia)\b/, care: true, en: "This kiosk doesn't carry emergency contraception. Pharmacies sell it without a prescription, and it works best the sooner it's taken:", es: "Este quiosco no tiene anticonceptivos de emergencia. Las farmacias los venden sin receta, y funcionan mejor cuanto antes se tomen:" },
@@ -1630,28 +1644,6 @@ const Assistant = (function () {
     return replyFrom(NOT_CARRIED, p, R);
   }
 
-  // ---- "what is advil" / "is acetaminophen the same as tylenol" ----
-  const BRANDS = { advil: "ibuprofen", motrin: "ibuprofen", tylenol: "acetaminophen", bayer: "aspirin", benadryl: "antihistamine", tums: "antacid", imodium: "antidiarrheal" };
-  const INGREDIENT = { ibuprofen: ["ibuprofen", "ibuprofeno"], acetaminophen: ["acetaminophen", "acetaminofén"], aspirin: ["aspirin", "aspirina"], antihistamine: ["diphenhydramine", "difenhidramina"], antacid: ["calcium carbonate", "carbonato de calcio"], antidiarrheal: ["loperamide", "loperamida"] };
-
-  function handleBrand(p, R) {
-    const brand = Object.keys(BRANDS).find((b) => has(p, b));
-    if (!brand) return false;
-    const pr = PRODUCTS.find((x) => x.id === BRANDS[brand]);
-    if (/\b(better|versus|vs|or|compare|difference)\b/.test(p)) return false;
-    const stockAsk = /\b(do you have|you got|got any|have any|sell|carry)\b/.test(p);
-    const whatAsk = /^(what|whats|is|are)\b|\b(same|brand|generic)\b/.test(p) && !/\b(used|use|for|do|does|price|cost|warning|warnings|directions|stock|available)\b/.test(p);
-    if (!stockAsk && !whatAsk) return false;
-    if (/\b(take|safe|warning|dose|mix|together|with|side)\b/.test(p)) return false;
-    const name = brand[0].toUpperCase() + brand.slice(1), ing = INGREDIENT[pr.id][R.lang === "es" ? 1 : 0];
-    const same = pr.name.toLowerCase().includes(brand);
-    R.say(same
-      ? R.L(`${name} is a brand of ${ing}. We carry it: ${pr.name}, ${usd(pr.price)}. Used for: ${pr.uses}`, `${name} es una marca de ${ing}. La tenemos: ${pr.name}, ${usd(pr.price)}. Se usa para: ${pr.uses}`)
-      : R.L(`${name} is a brand of ${ing}. We carry ${pr.name}, with the same active ingredient, for ${usd(pr.price)}. Used for: ${pr.uses}`, `${name} es una marca de ${ing}. Tenemos ${pr.name}, con el mismo ingrediente activo, por ${usd(pr.price)}.`));
-    if (R.avail(pr)) { R.products = [pr]; R.chip(`Add ${pr.name}`, `Agregar ${pr.name}`); }
-    R.last = pr;
-    return true;
-  }
 
   const LABEL_STOP = new Set("should could would about there these those which label medicine product doctor after before using taking safe still years children adults being while their people".split(" "));
 
@@ -1664,8 +1656,8 @@ const Assistant = (function () {
       es: "Si hay hinchazón de la cara, labios o garganta, dificultad para respirar o mareo, llame al 911 ahora. Nada aquí trata una reacción grave. Para picazón leve o pocas ronchas sin nada de eso, Benadryl para Alergias está etiquetado para picazón por alergias, y un farmacéutico o médico puede aconsejarle.", warn: true, care: true },
     { when: (p, R) => /\b(for|past|last)( a| \d+| two| three| four| several| a few)? (weeks?|months?)\b/.test(p) && findTopics(p).length, en: "That's gone on too long to keep treating yourself. Please see a doctor; a clinic can find out what's causing it.",
       es: "Eso lleva demasiado tiempo para seguir tratándolo por su cuenta. Por favor vea a un médico; una clínica puede averiguar la causa.", warn: true, care: true },
-    { re: /\b(hangover|hungover|resaca|cruda)\b/, en: "Water, food and rest help most, and an electrolyte packet can help replace fluids. Skip acetaminophen while alcohol is in your system because of the liver risk, and NSAIDs can upset your stomach.",
-      es: "El agua, la comida y el descanso ayudan más, y un sobre de electrolitos puede reponer líquidos. Evite el acetaminofén mientras tenga alcohol en el cuerpo por el riesgo para el hígado, y los AINE pueden irritar el estómago.", closest: "electrolyte" },
+    { re: /\b(hangover|hungover|resaca|cruda)\b/, en: "Rest helps most. Ask the staff before you take any medicine, or eat or drink anything.",
+      es: "El descanso ayuda más. Pregunte al personal antes de tomar cualquier medicamento o de comer o beber." },
     { re: /\b(tick|garrapata)\b/, en: "Pull the tick straight out with fine tweezers, close to the skin, then wash with soap and water. See a doctor if a rash spreads or you get a fever or body aches in the next few weeks, or if it was attached a long time.",
       es: "Saque la garrapata recto con pinzas finas, cerca de la piel, y lave con agua y jabón. Vea a un médico si se extiende un sarpullido o tiene fiebre o dolores en las siguientes semanas, o si estuvo pegada mucho tiempo." },
     { re: /\b(period|regla)\b.*\b(late|missed|atrasad\w*)\b|\b(missed|late)\b.*\b(period|regla)\b/, en: "A late period can have many causes, including pregnancy. This kiosk has a pregnancy test. See a doctor if your period stays away, or if you have severe pain.",
@@ -1683,12 +1675,11 @@ const Assistant = (function () {
       const sorted = PRODUCTS.filter((x) => R.avail(x)).sort((a, b) => a.price - b.price).slice(0, 3);
       R.say(R.L(`The lowest prices here: ${sorted.map((x) => `${x.name} (${usd(x.price)})`).join(", ")}. Tell me what you need it for and I'll compare the right ones.`, `Los precios más bajos: ${sorted.map((x) => `${x.name} (${usd(x.price)})`).join(", ")}. Dígame para qué lo necesita y comparo los adecuados.`));
     } },
-    { when: (p, R) => /\b(maoi|maois|imao)\b/.test(p) && /\b(what|which|cant|can i|avoid|safe)\b/.test(p), en: "With an MAOI, don't use Vicks DayQuil Cold & Flu. Their label says not to take them during an MAOI or for 2 weeks after stopping one. Ask a pharmacist before any cold, cough or decongestant product.",
-      es: "Con un IMAO, no use Vicks DayQuil Resfriado y Gripe. Su etiqueta dice que no se tomen durante un IMAO ni 2 semanas después de dejarlo. Consulte a un farmacéutico antes de usar cualquier producto para el resfriado, la tos o la congestión.", warn: true },
     { re: /\b(strongest|most powerful|strongest thing|mas fuerte)\b/, en: "Everything here is over-the-counter, and stronger isn't safer, so I don't rank them that way. Tell me what's going on and what you can't take, and I'll narrow it down. For severe pain, see a doctor.",
       es: "Todo aquí es de venta libre, y más fuerte no significa más seguro, así que no los clasifico así. Dígame qué le pasa y qué no puede tomar, y lo reduzco. Para dolor fuerte, vea a un médico." },
     { re: /\b(which|what)\b.*\b(drowsy|sleepy|drowsiness|sueno)\b/, run: (p, R) => {
       const list = shelf((x) => /drows/i.test(x.warnings));
+      if (!list.length) { R.say(R.L("None of the items here are taken by mouth, and none of their labels warn about drowsiness.", "Ningún artículo de aquí se toma por la boca, y ninguna etiqueta advierte de somnolencia.")); return; }
       R.say(R.L(`These labels warn about drowsiness:\n${shelfLines(list)}\nDon't drive after taking them until you know how they affect you.`, `Estas etiquetas advierten de somnolencia:\n${shelfLines(list)}\nNo maneje después de tomarlos hasta saber cómo le afectan.`));
     } },
     { when: (p, R) => /\b(which|what)\b.*\b(pregnan\w*|breastfeeding|nursing)\b/.test(p) && !/\btests?\b/.test(p) && !(R.cond && R.cond.maybePregnant), en: "I can't clear any medicine as safe in pregnancy or while nursing. That's for a pharmacist or doctor. I can tell you the ibuprofen and aspirin labels warn against use in the last 3 months of pregnancy.",

@@ -22,10 +22,8 @@ function setIcon(id, kind) {
   ["nfcIcon", "nfc"], ["cardIcon2", "card"], ["fsaIcon", "card"],
   ["resetClockIcon", "clock"], ["emergencyIcon", "alert"],
   ["judgesToggleIcon", "star"], ["judgesCloseIcon", "close"],
-  ["thermalOverrideIcon", "thermometer"], ["disasterModeIcon", "flame"], ["dispenserJamIcon", "wrench"],
-  ["interactionDemoIcon", "pulse"], ["redFlagIcon", "pulse"], ["interactionIcon", "alert"],
-  ["disasterAlertIcon", "alert"], ["disasterAiIcon", "chat"], ["disasterEmergencyIcon", "pulse"], ["disasterCartIcon", "cart"],
-  ["disasterLangIcon", "globe"], ["disasterA11yIcon", "access"],
+  ["thermalOverrideIcon", "thermometer"], ["dispenserJamIcon", "wrench"],
+  ["redFlagIcon", "pulse"], ["interactionIcon", "alert"],
   ["toastIcon", "check"], ["dispenseIcon", "pill"],
   ["aabIcon", "chat"], ["aabChevron", "chevronRight"], ["aiChatCloseIcon", "close"],
   ["chatMicIcon", "mic"], ["chatSendIcon", "chevronRight"], ["careBackIcon", "chevronLeft"], ["aboutBackIcon", "chevronLeft"],
@@ -99,29 +97,7 @@ let cart = []; // [{ id, qty }]
 const HEAT_SENSITIVE_IDS = ["ointment", "decongestant", "sanitizer", "sunscreen", "coldpack"];
 
 let cabinetOverheated = false; // Thermal Stability Override
-let disasterMode = false; // Disaster Relief Mode
 let simulateDispenserJam = false; // one-shot: consumed by the next dispense
-
-// ---- Disaster Relief Mode: symptom-first triage, zero-cost dispensing, ration engine ----
-// Mapped to the closest real items this catalog actually carries — items
-// like insect repellent or water-purification tablets aren't stocked, so
-// they're intentionally left out rather than inventing products.
-const TRIAGE_GROUPS = [
-  { id: "hydration", labelEn: "Hydration & Heat Exhaustion", labelEs: "Hidratación y Agotamiento por Calor", icon: "drop", max: 2, productIds: ["electrolyte", "coldpack"] },
-  { id: "wound", labelEn: "Wound Care & Trauma", labelEs: "Cuidado de Heridas y Trauma", icon: "bandage", max: 1, productIds: ["bandaid", "gauze", "ointment"] },
-  { id: "burn", labelEn: "Burn & Environmental", labelEs: "Quemaduras y Ambiental", icon: "flame", max: 1, productIds: ["ointment", "sunscreen"] },
-  { id: "fever", labelEn: "Fever & Pain Relief", labelEs: "Fiebre y Alivio del Dolor", icon: "pill", max: 1, productIds: ["acetaminophen", "ibuprofen"] },
-];
-const DISASTER_RATION_MAX_TOTAL = 2; // per "person" (per cooldown cycle)
-const DISASTER_COOLDOWN_SECONDS = 30;
-
-let disasterUiState = "triage"; // "triage" | "items" | "guidance" | "cooldown"
-let disasterActiveGroupId = null;
-let disasterDispensedTotal = 0;
-let disasterCategoryCounts = {}; // groupId -> count dispensed this cycle
-let disasterCooldownInterval = null;
-let disasterGuidanceTimer = null;
-let disasterGuidanceProduct = null;
 
 function isTempLocked(product) {
   return cabinetOverheated && HEAT_SENSITIVE_IDS.includes(product.id);
@@ -199,7 +175,7 @@ function syncCartWithAvailability() {
 // Mandatory safety acknowledgment for dangerous medicines
 // ============================================================
 // Items flagged `highRisk` in products.js can't be added (or dispensed in
-// Disaster Mode) until the customer ticks a box saying they've read the
+// the regular flow) until the customer ticks a box saying they've read the
 // product's own label warnings and know what they're doing. Once
 // acknowledged, that item isn't asked again for the rest of the customer's
 // session (reset with the kiosk), so bumping the quantity isn't nagged.
@@ -311,7 +287,7 @@ function warnNewInteraction(product) {
 
 // Little pop on the cart counters whenever the count changes.
 function bumpCartBadges() {
-  ["cartCountNum", "headerCartBadge", "disasterCartBtn"].forEach((id) => {
+  ["cartCountNum", "headerCartBadge"].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.remove("bump");
@@ -411,7 +387,6 @@ function updateCartFooter() {
   const headerCartBadge = document.getElementById("headerCartBadge");
   headerCartBadge.textContent = String(n);
   headerCartBadge.classList.toggle("hidden", n === 0);
-  updateDisasterCartButton();
 }
 
 // ============================================================
@@ -1727,7 +1702,6 @@ function resetKiosk() {
   ackPending = null;
   safetyAckOverlay.classList.remove("show");
   ackedProductIds = new Set(); // a new customer must acknowledge again
-  if (disasterMode && disasterUiState === "items") renderDisasterTriage(); // fresh customer starts at triage
   searchInput.value = "";
   chatInput.value = "";
   // Fresh customer: demo scenarios, language and display settings back to defaults.
@@ -1767,12 +1741,7 @@ function toggleA11yDropdown(e) {
 }
 document.getElementById("langBtn").addEventListener("click", toggleLangDropdown);
 document.getElementById("a11yBtn").addEventListener("click", toggleA11yDropdown);
-// Disaster Relief Mode is a full-screen takeover that covers the normal
-// header (and its lang/a11y buttons), so it gets its own pair of buttons
-// wired to the exact same dropdowns rather than a duplicate settings UI.
-document.getElementById("disasterLangBtn").addEventListener("click", toggleLangDropdown);
-document.getElementById("disasterA11yBtn").addEventListener("click", toggleA11yDropdown);
-const DROPDOWN_OPEN_IDS = new Set(["langBtn", "a11yBtn", "disasterLangBtn", "disasterA11yBtn"]);
+const DROPDOWN_OPEN_IDS = new Set(["langBtn", "a11yBtn"]);
 kiosk.addEventListener("pointerdown", (e) => {
   if (!langDropdown.contains(e.target) && !DROPDOWN_OPEN_IDS.has(e.target.id)) langDropdown.classList.remove("show");
   if (!a11yDropdown.contains(e.target) && !DROPDOWN_OPEN_IDS.has(e.target.id)) a11yDropdown.classList.remove("show");
@@ -1786,7 +1755,6 @@ const ARIA_LABELS = {
   headerCartBtn: "ariaCart", langBtn: "ariaLanguage", a11yBtn: "ariaAccessibility", micBtn: "ariaVoice", helperBtn: "ariaHelper",
   productModalClose: "ariaClose", pdQtyMinus: "ariaQtyMinus", pdQtyPlus: "ariaQtyPlus", symptomModalClose: "ariaClose", aiChatClose: "ariaClose",
   chatMicBtn: "ariaVoice", chatSendBtn: "ariaSend", careBackBtn: "ariaBack", checkoutBackBtn: "ariaBack", aboutBackBtn: "ariaBack", judgesClose: "ariaClose",
-  disasterLangBtn: "ariaLanguage", disasterA11yBtn: "ariaAccessibility",
 };
 function applyAriaLabels() {
   Object.entries(ARIA_LABELS).forEach(([id, key]) => {
@@ -1801,7 +1769,6 @@ function setLanguage(lang) {
   document.documentElement.lang = lang === "es" ? "es-US" : "en";
   applyAriaLabels();
   document.getElementById("langCode").textContent = lang.toUpperCase();
-  document.getElementById("disasterLangCode").textContent = lang.toUpperCase();
   document.getElementById("langEnBtn").classList.toggle("active", lang === "en");
   document.getElementById("langEsBtn").classList.toggle("active", lang === "es");
 
@@ -1813,7 +1780,6 @@ function setLanguage(lang) {
   renderScenarioBanners();
   if (careScreen.classList.contains("show")) renderCareScreen();
   if (judgesOverlay.classList.contains("show")) { renderJudgesStockList(); updateJudgesToggleButtons(); }
-  if (disasterMode) renderDisasterScreen();
   if (lastMode.type === "search") runSearch(lastMode.value);
   else selectCategory(lastMode.value);
 }
@@ -1834,7 +1800,7 @@ wireToggle("largeTextToggle", (on) => {
   kiosk.classList.toggle("a11y-large", on);
   // `rem` is always relative to <html>, not to .kiosk, so the class has to
   // land on the real root too or every rem-sized font-size in the app
-  // (including the disaster screen) silently ignores this toggle.
+  // silently ignores this toggle.
   document.documentElement.classList.toggle("a11y-large", on);
 });
 wireToggle("highContrastToggle", (on) => kiosk.classList.toggle("high-contrast", on));
@@ -1862,7 +1828,6 @@ function setProductStock(id, inStock) {
   renderJudgesStockList();
   refreshCurrentView();
   syncCartWithAvailability();
-  if (disasterMode) renderDisasterScreen();
 }
 
 function renderJudgesStockList() {
@@ -1921,11 +1886,6 @@ function updateJudgesToggleButtons() {
     : L("Trigger Thermal Stability Override", "Activar Bloqueo Térmico");
   document.getElementById("thermalOverrideBtn").classList.toggle("active-state", cabinetOverheated);
 
-  const disasterLabel = document.getElementById("disasterModeLabel");
-  disasterLabel.textContent = disasterMode
-    ? L("Exit Disaster Relief Mode", "Salir del Modo de Desastre")
-    : L("Activate Disaster Relief Mode", "Activar Modo de Desastre");
-  document.getElementById("disasterModeBtn").classList.toggle("active-state", disasterMode);
 
   const jamLabel = document.getElementById("dispenserJamLabel");
   jamLabel.textContent = simulateDispenserJam
@@ -1940,289 +1900,13 @@ function toggleThermalOverride() {
   renderScenarioBanners();
   refreshCurrentView();
   syncCartWithAvailability();
-  if (disasterMode) renderDisasterScreen();
   if (cabinetOverheated) showToast(L("🌡️ Thermal stability override triggered", "🌡️ Anulación de estabilidad térmica activada"));
 }
-
-// ---- Disaster Relief Mode: full-screen off-grid triage terminal ----
-
-function toggleDisasterMode() {
-  disasterMode = !disasterMode;
-  updateJudgesToggleButtons();
-  if (disasterMode) {
-    closeJudgesPanel();
-    disasterUiState = "triage";
-    disasterActiveGroupId = null;
-    disasterDispensedTotal = 0;
-    disasterCategoryCounts = {};
-    stopDisasterTimers();
-    renderDisasterScreen();
-    document.getElementById("disasterScreen").classList.add("show");
-  } else {
-    stopDisasterTimers();
-    document.getElementById("disasterScreen").classList.remove("show");
-  }
-}
-
-// The guidance screen schedules the cooldown 3s later. Exiting (or resetting)
-// Disaster Mode inside that window used to still fire it, which rewrote the
-// hidden disaster screen and started an orphaned 30s interval.
-function stopDisasterTimers() {
-  clearTimeout(disasterGuidanceTimer);
-  clearInterval(disasterCooldownInterval);
-  disasterGuidanceTimer = null;
-  disasterCooldownInterval = null;
-}
-
-function disasterGroupCount(groupId) { return disasterCategoryCounts[groupId] || 0; }
-
-// Everything NOT designated an emergency-triage item stays available in
-// Disaster Relief Mode too — just at normal price, through the regular
-// cart/checkout, not the free rationed dispense path.
-function disasterEmergencyIds() { return new Set(TRIAGE_GROUPS.flatMap((g) => g.productIds)); }
-function disasterOtherProducts() {
-  const emergencyIds = disasterEmergencyIds();
-  return PRODUCTS.filter((p) => !emergencyIds.has(p.id));
-}
-
-function updateDisasterCartButton() {
-  const btn = document.getElementById("disasterCartBtn");
-  const label = document.getElementById("disasterCartLabel");
-  const n = cartCount();
-  label.textContent = `${L("Cart", "Carrito")} (${n})${n ? " · " + money(cartSubtotal()) : ""}`;
-  btn.disabled = n === 0;
-}
-
-function renderDisasterScreen() {
-  if (disasterUiState === "triage") renderDisasterTriage();
-  else if (disasterUiState === "items") renderDisasterItems(disasterActiveGroupId);
-  else if (disasterUiState === "guidance" && disasterGuidanceProduct) renderDisasterGuidance(disasterGuidanceProduct);
-  // "guidance" and "cooldown" states render themselves directly when entered.
-}
-
-function renderDisasterTriage() {
-  disasterUiState = "triage";
-  const es = currentLang === "es";
-  const body = document.getElementById("disasterBody");
-  const atTotalCap = disasterDispensedTotal >= DISASTER_RATION_MAX_TOTAL;
-  const tiles = TRIAGE_GROUPS.map((g) => {
-    const used = disasterGroupCount(g.id);
-    const groupFull = used >= g.max || atTotalCap;
-    return `
-      <div class="disaster-tile${groupFull ? " disabled" : ""}" data-group="${g.id}">
-        <div class="dt-icon">${iconSvg(g.icon)}</div>
-        <div class="dt-label">${es ? g.labelEs : g.labelEn}</div>
-        <div class="dt-ration">${es ? "Ración" : "Ration"}: ${used}/${g.max}</div>
-      </div>
-    `;
-  }).join("");
-  body.innerHTML = `
-    <div class="disaster-triage-wrap">
-      <div class="disaster-triage-grid">${tiles}</div>
-      <div class="disaster-tile other" data-group="other">
-        <div class="dt-icon">${iconSvg("shield")}</div>
-        <div class="dt-label">${es ? "Otros Suministros" : "Other Supplies"}</div>
-        <div class="dt-ration">${es ? "Precio normal · sin ración" : "Standard price · not rationed"}</div>
-      </div>
-    </div>
-  `;
-  body.querySelectorAll(".disaster-tile").forEach((tile) => {
-    tile.addEventListener("click", () => {
-      disasterActiveGroupId = tile.dataset.group;
-      renderDisasterItems(disasterActiveGroupId);
-    });
-  });
-  updateDisasterCartButton();
-}
-
-function renderDisasterItems(groupId) {
-  disasterUiState = "items";
-  disasterActiveGroupId = groupId;
-  const body = document.getElementById("disasterBody");
-  const es = currentLang === "es";
-
-  if (groupId === "other") {
-    const items = disasterOtherProducts();
-    body.innerHTML = `
-      <div class="disaster-item-header">
-        <button class="disaster-back-btn" id="disasterItemsBack">${iconSvg("chevronLeft")}</button>
-        <div class="disaster-item-title">${es ? "Otros Suministros (Precio Normal)" : "Other Supplies (Standard Price)"}</div>
-      </div>
-      ${items.map((p, i) => `
-        <div class="disaster-item-card standard" style="--i:${Math.min(i, 12)}">
-          <div class="di-icon standard">${iconSvg(p.icon)}</div>
-          <div class="di-info">
-            <div class="di-name standard">${p.name}</div>
-            <div class="di-price standard">${money(p.price)}</div>
-          </div>
-          <button class="di-dispense-btn standard" data-id="${p.id}" ${!isAvailable(p) ? "disabled" : ""}>
-            ${unavailableReason(p) === "temp" ? t("tempLocked") : unavailableReason(p) === "stock" ? t("outOfStock") : (es ? "Agregar" : "Add to Cart")}
-          </button>
-        </div>
-      `).join("")}
-    `;
-    document.getElementById("disasterItemsBack").addEventListener("click", renderDisasterTriage);
-    body.querySelectorAll(".di-dispense-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const p = findProduct(btn.dataset.id);
-        guardedAdd(p, 1, (ok) => {
-          if (!ok) return;
-          showToast(`${p.name} ${es ? "agregado a su pedido" : "added to your order"}`);
-          updateDisasterCartButton();
-        });
-      });
-    });
-    return;
-  }
-
-  const group = TRIAGE_GROUPS.find((g) => g.id === groupId);
-  const atTotalCap = disasterDispensedTotal >= DISASTER_RATION_MAX_TOTAL;
-  const groupFull = disasterGroupCount(groupId) >= group.max;
-  const items = group.productIds.map(findProduct).filter(Boolean);
-
-  body.innerHTML = `
-    <div class="disaster-item-header">
-      <button class="disaster-back-btn" id="disasterItemsBack">${iconSvg("chevronLeft")}</button>
-      <div class="disaster-item-title">${es ? group.labelEs : group.labelEn}</div>
-    </div>
-    ${items.map((p, i) => `
-      <div class="disaster-item-card" style="--i:${i}">
-        <div class="di-icon">${iconSvg(p.icon)}</div>
-        <div class="di-info">
-          <div class="di-name">${p.name}</div>
-          <div class="di-price">$0.00 — ${es ? "Crédito de Emergencia" : "Emergency Relief Credit"}</div>
-        </div>
-        <button class="di-dispense-btn" data-id="${p.id}" ${(atTotalCap || groupFull || !isAvailable(p)) ? "disabled" : ""}>
-          ${unavailableReason(p) === "temp" ? t("tempLocked") : unavailableReason(p) === "stock" ? t("outOfStock") : (es ? "Entregar Ahora" : "Dispense Now")}
-        </button>
-      </div>
-    `).join("")}
-  `;
-  document.getElementById("disasterItemsBack").addEventListener("click", renderDisasterTriage);
-  body.querySelectorAll(".di-dispense-btn").forEach((btn) => {
-    btn.addEventListener("click", () => dispenseDisasterItem(findProduct(btn.dataset.id), group));
-  });
-}
-
-function dispenseDisasterItem(product, group) {
-  // Re-check at click time: caps and stock can change while the list is open.
-  if (!product || !isAvailable(product)) return;
-  if (disasterDispensedTotal >= DISASTER_RATION_MAX_TOTAL || disasterGroupCount(group.id) >= group.max) return;
-  if (needsSafetyAck(product)) {
-    // Free relief items are still real medicine: same mandatory sign-off.
-    openSafetyAck(product, "dispense", () => dispenseDisasterItem(product, group), null);
-    return;
-  }
-  disasterDispensedTotal++;
-  disasterCategoryCounts[group.id] = disasterGroupCount(group.id) + 1;
-  renderDisasterGuidance(product);
-}
-
-function buildEmergencyGuidance(product) {
-  const es = currentLang === "es";
-  const parts = [product.instructions];
-  if (product.warnings) parts.push(product.warnings);
-  const closing = es
-    ? "Si la persona está confundida, con dolor severo o inconsciente, busque refugio médico de inmediato."
-    : "If the person is confused, in severe pain, or unconscious, seek immediate medical shelter.";
-  return parts.join(" ") + " " + closing;
-}
-
-function renderDisasterGuidance(product) {
-  disasterUiState = "guidance";
-  disasterGuidanceProduct = product;
-  const es = currentLang === "es";
-  const body = document.getElementById("disasterBody");
-  body.innerHTML = `
-    <div class="disaster-guidance">
-      <div class="dg-icon">${iconSvg("check")}</div>
-      <div class="dg-title">${es ? "ENTREGANDO" : "DISPENSING"}: ${esc(product.name)}</div>
-      <div class="dg-text">${es ? "Guía de Emergencia" : "Emergency Guidance"}: ${esc(buildEmergencyGuidance(product))}</div>
-      <div class="dg-qr-row">
-        <div class="qr-box small" id="reliefQr"></div>
-        <div class="dg-qr-text">${es
-          ? "Escanee para guardar las pautas de tratamiento sin conexión en su teléfono — no requiere datos móviles."
-          : "Scan to save these offline treatment guidelines to your phone — no cell data required."}</div>
-      </div>
-    </div>
-  `;
-  // Plain-text QR: the phone's camera shows the text itself, so it works with
-  // no cell data at all — exactly what an off-grid relief card needs.
-  const reliefText = [
-    "MEDIVEND RELIEF CARD",
-    product.name + " — " + product.dosage,
-    buildEmergencyGuidance(product),
-    "Emergency: 911 | Poison Help: 1-800-222-1222",
-    es ? "Información general, no es consejo médico." : "General information, not medical advice.",
-  ].join("\n");
-  document.getElementById("reliefQr").innerHTML = qrSvg(reliefText.slice(0, 900), { ecc: "L" });
-  clearTimeout(disasterGuidanceTimer);
-  disasterGuidanceTimer = setTimeout(() => { if (disasterMode) startDisasterCooldown(); }, 3000);
-}
-
-function startDisasterCooldown() {
-  disasterUiState = "cooldown";
-  let remaining = DISASTER_COOLDOWN_SECONDS;
-  const RING = 2 * Math.PI * 54;
-  // Built once, then updated in place each second so the ring sweeps
-  // smoothly instead of the whole panel being rewritten (and flickering).
-  document.getElementById("disasterBody").innerHTML = `
-    <div class="disaster-cooldown">
-      <div class="dc-ring">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <circle class="dc-ring-track" cx="60" cy="60" r="54"></circle>
-          <circle class="dc-ring-bar" id="dcRingBar" cx="60" cy="60" r="54" stroke-dasharray="${RING}" stroke-dashoffset="0"></circle>
-        </svg>
-        <div class="dc-count" id="dcCount"></div>
-      </div>
-      <div class="dc-title" id="dcTitle"></div>
-      <div class="dc-sub" id="dcSub"></div>
-    </div>
-  `;
-  const update = () => {
-    const es = currentLang === "es";
-    const count = document.getElementById("dcCount");
-    if (!count) return; // screen was replaced
-    count.textContent = `${remaining}s`;
-    document.getElementById("dcTitle").textContent = es ? "Reinicio de Seguridad" : "Safety Reset";
-    document.getElementById("dcSub").textContent = es
-      ? `Permita que otros accedan a los suministros de emergencia. Próxima transacción disponible en ${remaining}s.`
-      : `Please allow others access to emergency supplies. Next transaction available in ${remaining}s.`;
-    document.getElementById("dcRingBar").style.strokeDashoffset = String(RING * (1 - remaining / DISASTER_COOLDOWN_SECONDS));
-  };
-  update();
-  clearInterval(disasterCooldownInterval);
-  disasterCooldownInterval = setInterval(() => {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(disasterCooldownInterval);
-      disasterDispensedTotal = 0;
-      disasterCategoryCounts = {};
-      renderDisasterTriage();
-      return;
-    }
-    update();
-  }, 1000);
-}
-
-document.getElementById("disasterAiBtn").addEventListener("click", openAiChat);
-document.getElementById("disasterEmergencyBtn").addEventListener("click", triggerEmergency);
-document.getElementById("disasterExitBtn").addEventListener("click", toggleDisasterMode);
-document.getElementById("disasterCartBtn").addEventListener("click", () => { if (cartCount() > 0) openCheckout(); });
 
 function armDispenserJam() {
   simulateDispenserJam = true;
   updateJudgesToggleButtons();
   showToast(L("🔧 Dispenser jam armed for the next order", "🔧 Atasco del dispensador armado para el próximo pedido"));
-}
-
-function simulateInteractionDemo() {
-  closeJudgesPanel();
-  // Goes through the same mandatory acknowledgments a customer sees.
-  guardedAdd(findProduct("aspirin"), 1, (a) => {
-    if (!a) return;
-    guardedAdd(findProduct("ibuprofen"), 1, (b) => { if (b) openCheckout(); });
-  });
 }
 
 function triggerRedFlagDemo() {
@@ -2236,11 +1920,6 @@ function resetAllScenarios(silent) {
   PRODUCTS.forEach((p) => { p.inStock = true; });
   cabinetOverheated = false;
   simulateDispenserJam = false;
-  if (disasterMode) {
-    disasterMode = false;
-    stopDisasterTimers();
-    document.getElementById("disasterScreen").classList.remove("show");
-  }
   renderJudgesStockList();
   updateJudgesToggleButtons();
   renderScenarioBanners();
@@ -2258,9 +1937,7 @@ function closeJudgesPanel() { judgesOverlay.classList.remove("show"); }
 document.getElementById("judgesToggle").addEventListener("click", openJudgesPanel);
 document.getElementById("judgesClose").addEventListener("click", closeJudgesPanel);
 document.getElementById("thermalOverrideBtn").addEventListener("click", toggleThermalOverride);
-document.getElementById("disasterModeBtn").addEventListener("click", toggleDisasterMode);
 document.getElementById("dispenserJamBtn").addEventListener("click", armDispenserJam);
-document.getElementById("interactionDemoBtn").addEventListener("click", simulateInteractionDemo);
 document.getElementById("redFlagBtn").addEventListener("click", triggerRedFlagDemo);
 document.getElementById("resetAllScenariosBtn").addEventListener("click", () => resetAllScenarios());
 

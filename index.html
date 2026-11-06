@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="referrer" content="no-referrer" />
 <script src="boot.js"></script>
-<link rel="stylesheet" href="style.css?v=51" />
+<link rel="stylesheet" href="style.css?v=n1" />
 </head>
 <body>
 
@@ -46,9 +46,7 @@
 
       <!-- Language/Accessibility dropdowns live as direct children of .kiosk
            (not nested in the header) so their z-index isn't trapped inside
-           .kiosk-header's own stacking context (it sets z-index:20) — that
-           trapping is what silently made them unopenable while Disaster
-           Relief Mode's full-screen overlay (z-index:45) was showing. -->
+           .kiosk-header's own stacking context (it sets z-index:20). -->
       <div class="header-dropdown" id="langDropdown">
         <div class="dd-title" data-i18n="ddLanguage">Language</div>
         <div class="lang-choice-row">
@@ -86,11 +84,11 @@
       <div class="idle-overlay" id="idleOverlay">
         <div class="idle-logo" id="idleLogo"></div>
         <h1 class="idle-title" data-i18n="idleTitle">MediVend Health Kiosk</h1>
-        <p class="idle-sub" data-i18n="idleSub">Over-the-counter medicine and first aid supplies, available around the clock.</p>
+        <p class="idle-sub" data-i18n="idleSub">First aid and comfort supplies for your wait, available around the clock.</p>
         <div class="idle-tip" id="idleTip"></div>
         <div class="idle-demo-badge">DEMO</div>
         <button class="idle-cta" id="idleCta" data-i18n="idleCtaText">TOUCH TO BROWSE MEDICAL &amp; FIRST AID SUPPLIES</button>
-        <div class="idle-credit">By Chetan Nallapaneni and Sriansh Madari<span class="trademark-note" data-i18n="trademarkNote">Advil, Tylenol, Bayer, Benadryl, Vicks, DayQuil, Afrin, Pamprin, Icy Hot, ThermaCare, Halls, Tums, Pedialyte, Dramamine, Imodium, Neosporin, Nexcare, ACE, Band-Aid, Always, Tampax, First Response, Purell and Coppertone are trademarks of their respective owners. MediVend is a student project and is not affiliated with, sponsored by, or endorsed by any of them. Brand names and logos are shown only to identify the products.</span></div>
+        <div class="idle-credit">By Chetan Nallapaneni<span class="trademark-note" data-i18n="trademarkNote">Band-Aid, Neosporin, Nexcare, 3M, ACE, Icy Hot, ThermaCare, Afrin, Always, Tampax, First Response, Purell, Kleenex, Mack's, Wet Ones, Anker and Coppertone are trademarks of their respective owners. MediVend is a student project and is not affiliated with, sponsored by, or endorsed by any of them. Brand names and logos are shown only to identify the products.</span></div>
       </div>
 
       <!-- ===== Catalog ===== -->
@@ -202,29 +200,6 @@
             <input type="text" id="chatInput" class="chat-input" data-i18n-placeholder="chatPlaceholder" placeholder="Ask anything — symptoms, items, first aid..." autocomplete="off" />
             <button class="icon-square-btn" id="chatSendBtn" style="background:var(--accent);color:#fff;border-color:var(--accent);"><span id="chatSendIcon"></span></button>
           </div>
-        </div>
-      </div>
-
-      <!-- ===== Disaster Relief Mode: off-grid triage terminal ===== -->
-      <div class="disaster-screen" id="disasterScreen">
-        <div class="disaster-topbar">
-          <div class="disaster-topbar-main">
-            <div class="disaster-topbar-title">
-              <span id="disasterAlertIcon"></span>
-              <span data-i18n="disasterTopbarTitle">DISASTER RELIEF MODE ACTIVE — PUBLIC HEALTH TRIAGE</span>
-            </div>
-          </div>
-          <div class="disaster-topbar-controls">
-            <button class="disaster-icon-btn" id="disasterLangBtn"><span id="disasterLangIcon"></span><span id="disasterLangCode">EN</span></button>
-            <button class="disaster-icon-btn" id="disasterA11yBtn"><span id="disasterA11yIcon"></span></button>
-          </div>
-        </div>
-        <div class="disaster-body" id="disasterBody"></div>
-        <div class="disaster-bottom-bar">
-          <button class="disaster-bottom-btn cart" id="disasterCartBtn" disabled><span id="disasterCartIcon"></span><span id="disasterCartLabel">Cart (0)</span></button>
-          <button class="disaster-bottom-btn" id="disasterAiBtn"><span id="disasterAiIcon"></span><span data-i18n="disasterAiBtnLabel">Local AI Triage Assistant</span></button>
-          <button class="disaster-bottom-btn emergency" id="disasterEmergencyBtn"><span id="disasterEmergencyIcon"></span><span data-i18n="disasterEmergencyBtnLabel">Emergency 911</span></button>
-          <button class="disaster-exit-btn" id="disasterExitBtn" data-i18n="disasterExitBtnLabel">Exit Disaster Mode</button>
         </div>
       </div>
 
@@ -412,14 +387,10 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
 
           <button class="judges-reset-all-btn" id="resetAllScenariosBtn" data-i18n="judgesResetAll">↺ Reset All Demo Scenarios</button>
 
-          <div class="judges-section-title" data-i18n="judgesSection1">1. Environmental &amp; Crisis Events</div>
+          <div class="judges-section-title" data-i18n="judgesSection1">1. Environmental Events</div>
           <button class="judges-scenario-btn" id="thermalOverrideBtn">
             <span id="thermalOverrideIcon"></span>
             <span id="thermalOverrideLabel">Trigger Thermal Stability Override</span>
-          </button>
-          <button class="judges-scenario-btn" id="disasterModeBtn">
-            <span id="disasterModeIcon"></span>
-            <span id="disasterModeLabel">Activate Disaster Relief Mode</span>
           </button>
 
           <div class="judges-section-title" data-i18n="judgesSection2">2. Inventory &amp; Mechanical Stress Events</div>
@@ -431,10 +402,6 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
           <div id="judgesStockList"></div>
 
           <div class="judges-section-title" data-i18n="judgesSection3">3. Clinical &amp; Safety Edge Cases</div>
-          <button class="judges-scenario-btn danger" id="interactionDemoBtn">
-            <span id="interactionDemoIcon"></span>
-            <span data-i18n="judgesInteractionBtn">Simulate Drug Interaction (Aspirin + Ibuprofen)</span>
-          </button>
           <button class="judges-scenario-btn danger" id="redFlagBtn">
             <span id="redFlagIcon"></span>
             <span data-i18n="judgesRedFlagBtn">Simulate: Chest Pain &amp; Left Arm Numbness</span>
@@ -499,19 +466,19 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
   </div>
 </div>
 
-<script src="vendor/qrcode.js?v=1"></script>
-<script src="qr.js?v=3"></script>
-<script src="rules.js?v=4"></script>
-<script src="icons.js?v=7"></script>
-<script src="products.js?v=12"></script>
-<script src="products-es.js?v=4"></script>
-<script src="product-art.js?v=10"></script>
-<script src="safety.js?v=26"></script>
-<script src="ai.js?v=7"></script>
-<script src="med-qa.js?v=8"></script>
-<script src="i18n.js?v=23"></script>
-<script src="knowledge.js?v=6"></script>
-<script src="assistant.js?v=39"></script>
-<script src="kiosk.js?v=37"></script>
+<script src="vendor/qrcode.js?v=n1"></script>
+<script src="qr.js?v=n1"></script>
+<script src="rules.js?v=n1"></script>
+<script src="icons.js?v=n1"></script>
+<script src="products.js?v=n1"></script>
+<script src="products-es.js?v=n1"></script>
+<script src="product-art.js?v=n1"></script>
+<script src="safety.js?v=n1"></script>
+<script src="ai.js?v=n1"></script>
+<script src="med-qa.js?v=n1"></script>
+<script src="i18n.js?v=n1"></script>
+<script src="knowledge.js?v=n1"></script>
+<script src="assistant.js?v=n1"></script>
+<script src="kiosk.js?v=n1"></script>
 </body>
 </html>

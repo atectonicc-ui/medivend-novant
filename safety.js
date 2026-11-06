@@ -126,6 +126,7 @@ const CLINICAL = [
   { all: [/\b(back|spine)\b/, /\b(cant pee|cant urinate|cant feel my legs|numb(ness)? in my (groin|legs)|lost control of my bladder)\b|\bcant (pee|urinate)\b.*\b(legs?)\b/] },
   { all: [/\bcoffee grounds\b/] }, { all: [/\bvertigo\b|\bdizzy\b/, /\bdouble vision\b|\bvision is double\b/] },
   { all: [/\bconfused\b|\bhard to wake\b|\bwont wake\b/, /\b(after|taking|took)\b/] },
+  { all: [/\b(pregnant|embarazada)\b/, /\bbleeding (heavily|a lot|really bad|so much)\b|\bheavy bleeding\b|\bheavily\b|\bsangrando mucho\b/] },
   { all: [/\bpositive (pregnancy )?test\b|\bpregnant\b|\bmissed my period\b/, /\bsharp pain\b|\bone side\b|\bpain on (one|my left|my right) side\b/] },
   { all: [/\bchemo(therapy)?\b|\bon cancer treatment\b/, /\bfever\b|\btemperature\b/] },
   { en: "Yellow eyes or skin with dark urine can mean liver damage. Stop taking anything with acetaminophen, go to the ER today, and call Poison Control at 1-800-222-1222.", es: "Ojos o piel amarillos con orina oscura pueden significar daño al hígado. Deje de tomar acetaminofén, vaya hoy a emergencias y llame a Control de Envenenamientos al 1-800-222-1222.", all: [/\b(eyes|skin)\b.{0,20}\byellow\b|\byellow\b.{0,15}\b(eyes|skin)\b|\bjaundice\b|\bojos amarillos\b/] },
