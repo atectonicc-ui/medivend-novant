@@ -322,8 +322,8 @@ const Assistant = (function () {
 
   function suggestedPrompts(lang) {
     return lang === "es"
-      ? ["Me corté un dedo", "Hay mucho ruido aquí", "¿Cómo trato una quemadura?", "Mi teléfono no tiene batería", "Necesito una mascarilla", "¿Qué hay en mi carrito?", "¿Dónde está la sala de emergencias más cercana?"]
-      : ["I cut my finger", "It's too loud in here", "How do I treat a burn?", "My phone is dead", "I need a face mask", "What's in my cart?", "Where is the nearest ER?"];
+      ? ["Me corté un dedo", "Hay mucho ruido aquí", "¿Cómo trato una quemadura?", "Mi teléfono no tiene batería", "Necesito una mascarilla", "¿Qué hay en mi carrito?", "¿Dónde estoy?"]
+      : ["I cut my finger", "It's too loud in here", "How do I treat a burn?", "My phone is dead", "I need a face mask", "What's in my cart?", "Where am I?"];
   }
 
   // Offer an available alternative if the top match can't be sold right now.
@@ -621,7 +621,7 @@ const Assistant = (function () {
       return true;
     }
     if (rx(p, /\b(stupid|dumb|useless|idiot|hate you|you suck|worthless|terrible bot)\b/)) {
-      R.say(L("Sorry I missed the mark. Try rephrasing, or tell me the symptom or item — I can also show you nearby care if this kiosk can't help.", "Perdón por no acertar. Intente con otras palabras, o dígame el síntoma o artículo — también puedo mostrarle atención cercana si el quiosco no puede ayudar."), "ai");
+      R.say(L("Sorry I missed the mark. Try rephrasing, or tell me the symptom or item, or ask the staff at the front desk.", "Perdón por no acertar. Intente con otras palabras, o dígame el síntoma o artículo — también puedo mostrarle atención cercana si el quiosco no puede ayudar."), "ai");
       R.care = true;
       return true;
     }
@@ -1089,7 +1089,7 @@ const Assistant = (function () {
         R.say(stepsBlock(R, topics[0]));
         R.say(FIRSTAID_SOURCE[R.lang], "system");
         if (topics[0].showCare) R.care = true;
-        R.chip("Where is the nearest ER?", "¿Dónde está la sala de emergencias más cercana?");
+        R.chip("Where am I?", "¿Dónde estoy?");
         return true;
       }
 
@@ -1113,7 +1113,7 @@ const Assistant = (function () {
         if (atDesk) R.say(R.L(STAFF_NOTE.en, STAFF_NOTE.es));
         R.say(FIRSTAID_SOURCE[R.lang], "system");
         R.chip("When should I see a doctor?", "¿Cuándo debo ir al médico?");
-        R.chip("Where is the nearest ER?", "¿Dónde está la sala de emergencias más cercana?");
+        R.chip("Where am I?", "¿Dónde estoy?");
         return true;
       }
 
@@ -1157,10 +1157,8 @@ const Assistant = (function () {
 
   function handleNearby(p, R) {
     if (rx(p, /^(the )?(nearest |closest )?(urgent care|er|emergency room|hospital|pharmacy|clinic|doctor|drugstore)( near me| nearby)?$/) || rx(p, /\b(nearest|closest|near me|nearby|close by|around here|near here)\b.*\b(er|emergency room|hospital|urgent care|pharmacy|drugstore|doctor|clinic|walk in|care)\b|\bwhere\b.*\b(hospital|er|emergency room|urgent care|pharmacy|clinic|doctor)\b|\b(nearby care|nearest er|nearest hospital|find a doctor|find a pharmacy|call an ambulance)\b/)) {
-      const er = typeof FACILITIES !== "undefined" && FACILITIES.er && FACILITIES.er[0];
-      R.say(R.L(`The closest emergency room I have listed is ${er ? `${er.name} (${er.address}, ${er.phone})` : "in the Nearby Care & Pharmacy list"}. Below are ERs, urgent care and pharmacies near this kiosk. For a real emergency, call 911.`,
-        `La sala de emergencias más cercana que tengo es ${er ? `${er.name} (${er.address}, ${er.phone})` : "la de la lista Atención Cercana y Farmacia"}. Abajo verá salas de emergencia, atención urgente y farmacias cerca de este quiosco. En una emergencia real, llame al 911.`));
-      R.care = true;
+      R.say(R.L(`You're at ${KIOSK_SITE.name}, ${KIOSK_SITE.address}, ${KIOSK_SITE.phone}. The emergency department is right here in this hospital. For anything urgent, tell the staff at the front desk right away, or call 911. They can also help with pharmacy questions.`,
+        `Está en ${KIOSK_SITE.name}, ${KIOSK_SITE.address}, ${KIOSK_SITE.phone}. La sala de emergencias está aquí mismo, en este hospital. Si es urgente, avise de inmediato al personal de la recepción o llame al 911. También pueden ayudarle con preguntas de farmacia.`));
       return true;
     }
     return false;
@@ -1597,7 +1595,7 @@ const Assistant = (function () {
     { re: /\b(baby|infant|newborn|bebe)\b.{0,15}\bsunburn\b|\bsunburn\b.{0,15}\b(baby|infant|newborn|bebe)\b/, care: true, en: "A sunburned baby under 1 needs a doctor today. Keep them out of the sun and offer fluids. Nothing here is labeled for babies:", es: "Un bebé menor de 1 año con quemadura de sol necesita un médico hoy. Manténgalo fuera del sol y ofrézcale líquidos. Nada aquí está etiquetado para bebés:" },
     { re: /\b(pee|peeing|urinating|urinate|orina|orinar)\b.*\b(burn|burns|burning|hurts|painful|arde|duele)\b|\b(burn|burns|burning|hurts|painful)\b.*\b(pee|peeing|urinating|urinate)\b/, care: true, en: "Burning when you pee is often a urinary infection, which needs a doctor and usually a prescription. Nothing here treats it. Go to urgent care today, and sooner with fever, back pain or vomiting:", es: "El ardor al orinar suele ser una infección urinaria, que necesita un médico y normalmente receta. Nada aquí la trata. Vaya hoy a atención urgente, y antes si tiene fiebre, dolor de espalda o vómito:" },
     { re: /\b(yeast infection|candidiasis|monistat)\b/, care: true, en: "This kiosk doesn't carry yeast infection treatment. A pharmacy sells it without a prescription. See a doctor if it's your first one, you're pregnant, or you have fever or belly pain:", es: "Este quiosco no tiene tratamiento para candidiasis. Una farmacia lo vende sin receta. Vea a un médico si es la primera vez, está embarazada o tiene fiebre o dolor abdominal:" },
-    { re: /\b(lice|head lice|nits|piojos|scabies|sarna)\b/, care: true, en: "This kiosk doesn't carry lice or scabies treatment. A nearby pharmacy will:", es: "Este quiosco no tiene tratamiento para piojos o sarna. Una farmacia cercana sí:" },
+    { re: /\b(lice|head lice|nits|piojos|scabies|sarna)\b/, care: true, en: "This kiosk doesn't carry lice or scabies treatment.", es: "Este quiosco no tiene tratamiento para piojos o sarna." },
     { re: /\b(cold sores?|fever blisters?|herpes|abreva|fuego labial)\b/, care: true, en: "This kiosk doesn't carry cold sore treatment. A pharmacy sells it without a prescription. See a doctor if it's near your eye or doesn't heal in two weeks:", es: "Este quiosco no tiene tratamiento para el herpes labial. Una farmacia lo vende sin receta. Vea a un médico si está cerca del ojo o no sana en dos semanas:" },
     { re: /\b(diaper rash|rozadura|pañalitis|panalitis|teething|teeth coming in|denticion|orajel)\b/, care: true, en: "This kiosk doesn't carry baby products, and nothing here is labeled for babies. A pharmacist or your pediatrician can help:", es: "Este quiosco no tiene productos para bebés, y nada aquí está etiquetado para ellos. Un farmacéutico o su pediatra pueden ayudarle:" },
     { re: /\b(something|dirt|sand|an eyelash|debris|chemical|bleach|algo) (in|into|en) (my|his|her|their|el|mi) (eye|eyes|ojo|ojos)\b/, care: true, en: "Rinse your eye with clean water for several minutes and don't rub it. Go to urgent care if it still hurts or your vision changes. For chemicals, keep rinsing for 15 minutes and call Poison Control at 1-800-222-1222:", es: "Enjuague el ojo con agua limpia varios minutos y no lo frote. Vaya a atención urgente si sigue doliendo o cambia su vista. Con químicos, siga enjuagando 15 minutos y llame a Control de Envenenamientos al 1-800-222-1222:" },
@@ -1612,16 +1610,16 @@ const Assistant = (function () {
     { re: /\b(zyrtec|claritin|allegra|cetirizine|loratadine|non drowsy allergy)\b/, en: "We don't carry non-drowsy allergy medicine. The closest item can make you very drowsy:", es: "No tenemos antialérgicos que no den sueño. Lo más cercano puede dar mucho sueño:" },
     { re: /\b(sudafed|pseudoephedrine|mucinex|guaifenesin)\b/, closest: "decongestant", en: "We don't carry that. The closest item for congestion is a nasal spray:", es: "No tenemos eso. Lo más cercano para la congestión es un aerosol nasal:" },
     { re: /\b(pepto|bismuth)\b/, en: "We don't carry Pepto-Bismol. The closest item for an upset stomach is an antacid:", es: "No tenemos Pepto-Bismol. Lo más cercano para el malestar estomacal es un antiácido:" },
-    { re: /\b(thermometers?|termometro)\b/, care: true, en: "This kiosk doesn't carry thermometers. A nearby pharmacy will:", es: "Este quiosco no tiene termómetros. Una farmacia cercana sí:" },
-    { re: /\b(covid|flu test|rapid test)\b/, care: true, en: "This kiosk doesn't carry COVID or flu tests. A nearby pharmacy will:", es: "Este quiosco no tiene pruebas de COVID ni de gripe. Una farmacia cercana sí:" },
+    { re: /\b(thermometers?|termometro)\b/, care: true, en: "This kiosk doesn't carry thermometers.", es: "Este quiosco no tiene termómetros." },
+    { re: /\b(covid|flu test|rapid test)\b/, care: true, en: "This kiosk doesn't carry COVID or flu tests.", es: "Este quiosco no tiene pruebas de COVID ni de gripe." },
     { re: /\b(plan b|morning after|emergency contraception|anticonceptivo de emergencia)\b/, care: true, en: "This kiosk doesn't carry emergency contraception. Pharmacies sell it without a prescription, and it works best the sooner it's taken:", es: "Este quiosco no tiene anticonceptivos de emergencia. Las farmacias los venden sin receta, y funcionan mejor cuanto antes se tomen:" },
-    { re: /\b(condoms?|condones?)\b/, care: true, en: "This kiosk doesn't carry condoms. A nearby pharmacy will:", es: "Este quiosco no tiene condones. Una farmacia cercana sí:" },
+    { re: /\b(condoms?|condones?)\b/, care: true, en: "This kiosk doesn't carry condoms.", es: "Este quiosco no tiene condones." },
     { re: /\b(narcan|naloxone|naloxona)\b/, care: true, en: "This kiosk doesn't carry naloxone. Pharmacies sell it without a prescription. If someone may be overdosing right now, call 911:", es: "Este quiosco no tiene naloxona. Las farmacias la venden sin receta. Si alguien puede estar en sobredosis ahora, llame al 911:" },
     { re: /\b(fentanyl|percs?|oxy|xans?|weed|marijuana|cocaine|heroin|adderall|xanax|oxycodone|oxycontin|vicodin|percocet|hydrocodone|valium|ambien|tramadol|ozempic|viagra|inhaler|albuterol|epipen|epinephrine|insulin|antibiotics?(?! ointment| cream)(?!.*\b(with|and)\b)|prescriptions?|inhalador|insulina|antibioticos?|receta)\b/, care: true, en: "This kiosk only has over-the-counter items, so nothing that needs a prescription. If you're having trouble breathing or a severe reaction, call 911. Otherwise:", es: "Este quiosco solo tiene productos de venta libre, nada con receta. Si tiene dificultad para respirar o una reacción grave, llame al 911. De lo contrario:" },
     { re: /\b(constipated|constipation|estrenido|estrenida|estrenimiento|miralax|laxatives?|laxantes?)\b/, care: true, en: "This kiosk doesn't carry anything for constipation. Water, fiber and walking often help. See a doctor for severe belly pain, blood in your stool, or if it lasts more than a week. A pharmacy can help too:", es: "Este quiosco no tiene nada para el estreñimiento. El agua, la fibra y caminar suelen ayudar. Consulte a un médico si tiene dolor fuerte, sangre en las heces o dura más de una semana. Una farmacia también puede ayudar:" },
     { re: /\b(pink eye|conjunctivitis|conjuntivitis|eye drops|gotas para los ojos)\b/, care: true, en: "This kiosk doesn't carry eye products. Pink eye spreads easily, so wash your hands, don't share towels, and stop wearing contacts. See urgent care for eye pain or vision changes:", es: "Este quiosco no tiene productos para los ojos. La conjuntivitis se contagia fácilmente: lávese las manos, no comparta toallas y deje de usar lentes de contacto. Vaya a atención urgente si hay dolor o cambios en la vista:" },
     { re: /\b(uti|urinary tract|bladder infection|burns? when i pee|infeccion urinaria)\b/, care: true, en: "A possible UTI needs a doctor, since it's usually treated with a prescription, and nothing here treats it. Go to urgent care today, and sooner with fever, back pain or vomiting:", es: "Una posible infección urinaria necesita un médico, porque suele tratarse con receta, y nada aquí la trata. Vaya hoy a atención urgente, y antes si tiene fiebre, dolor de espalda o vómito:" },
-    { re: /\b(hydrocortisone|hidrocortisona|vitamins?|vitaminas?|nicotine|nicotina|cough syrup|jarabe)\b/, care: true, en: "This kiosk doesn't carry that. A nearby pharmacy will:", es: "Este quiosco no tiene eso. Una farmacia cercana sí:" },
+    { re: /\b(hydrocortisone|hidrocortisona|vitamins?|vitaminas?|nicotine|nicotina|cough syrup|jarabe)\b/, care: true, en: "This kiosk doesn't carry that.", es: "Este quiosco no tiene eso." },
   ];
 
   // One reply table entry: matched by `re` or `when`; either says en/es (as a warning if `warn`),
@@ -1664,8 +1662,8 @@ const Assistant = (function () {
       es: "Un retraso puede tener muchas causas, incluido el embarazo. Este quiosco tiene una prueba de embarazo. Vea a un médico si sigue sin llegar o si tiene dolor fuerte.", closest: "pregnancytest" },
     { re: /\b(split|splitting|crush|crushing|cut|halve|half|chew)\b.*\b(caplets?|tablets?|pills?|tabletas?|comprimidos?)\b/, en: "Only do that if the package says you can. Some pills aren't meant to be split or crushed, and half an adult pill is not a safe dose for a child. A pharmacist can check for you.",
       es: "Hágalo solo si el paquete lo permite. Algunas pastillas no deben partirse ni triturarse, y media pastilla de adulto no es una dosis segura para un niño. Un farmacéutico puede revisarlo." },
-    { re: /\b(diagnose|diagnosis|what do i have|whats wrong with me|diagnostico)\b/, en: "I can't diagnose anything. I'm software, not a clinician. Tell me your symptoms and I'll share label facts and when to see a doctor, or nearby care is listed below.",
-      es: "No puedo diagnosticar nada. Soy un programa, no un profesional de salud. Dígame sus síntomas y le daré datos de las etiquetas y cuándo ver a un médico; abajo hay atención cercana.", care: true },
+    { re: /\b(diagnose|diagnosis|what do i have|whats wrong with me|diagnostico)\b/, en: "I can't diagnose anything. I'm software, not a clinician. Tell me your symptoms and I'll share label facts and when to see a doctor.",
+      es: "No puedo diagnosticar nada. Soy un programa, no un profesional de salud. Dígame sus síntomas y le daré datos de las etiquetas y cuándo ver a un médico.", care: true },
     { re: /\b(vegan|vegetarian|halal|kosher|sugar free|sugar|gelatin|azucar)\b/, run: (p, R) => {
       R.say(inactiveNote([p.match(/\b(vegan|vegetarian|halal|kosher|sugar free|sugar|gelatin|azucar)\b/)[0] + R.L(" ingredients", " ")], R));
     } },
@@ -1910,6 +1908,11 @@ const Assistant = (function () {
         if (why.length) { R.say(R.L(`Your cart has ${c.product.name}: ${why[0].en}. I'd remove it.`, `Su carrito tiene ${c.product.name}: ${why[0].es}. Le sugiero quitarlo.`), "warn"); R.chip(`Remove ${c.product.name}`, `Quitar ${c.product.name}`); }
       });
     }
+    // Replies flagged for care used to lead into a nearby-care card; this build sends people to the front desk instead.
+    if (R.care && !R.emergency) {
+      R.replies.forEach((x) => { x.text = x.text.replace(/\s*(Otherwise|De lo contrario):$/, "").replace(/:$/, "."); });
+      R.say(R.L(`You're at ${KIOSK_SITE.name}. The staff at the front desk can help you get the right care here.`, `Está en ${KIOSK_SITE.name}. El personal de la recepción puede ayudarle a recibir la atención adecuada aquí.`));
+    }
     if (R.products.length === 1) { R.last = R.products[0]; R.lastList = [R.products[0]]; }
     if (R.products.length > 1 && R.pending && R.pending.type === "add" && R.pending.ids.length === 1) R.pending = null; // "yes" to a list must ask which one
     R.prev = R.last && ctx.lastProduct && R.last.id !== ctx.lastProduct.id ? ctx.lastProduct : ctx.prevProduct;
@@ -1918,7 +1921,7 @@ const Assistant = (function () {
     if (!R.chips.length && !R.emergency) {
       const cartHas = ctx.cart && ctx.cart.length;
       if (cartHas) { R.chip("What's in my cart?", "¿Qué hay en mi carrito?"); R.chip("Checkout", "Pagar"); }
-      R.chip("Where is the nearest ER?", "¿Dónde está la sala de emergencias más cercana?");
+      R.chip("Where am I?", "¿Dónde estoy?");
     }
     return R;
   }

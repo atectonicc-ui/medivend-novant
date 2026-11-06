@@ -12,7 +12,7 @@ function setIcon(id, kind) {
 }
 
 [
-  ["headerLogo", "logo"], ["callNurseIcon", "phone"], ["headerCartIcon", "cart"], ["langIcon", "globe"],
+  ["headerLogo", "logo"], ["headerCartIcon", "cart"], ["langIcon", "globe"],
   ["a11yIcon", "access"], ["idleLogo", "logo"], ["searchIcon", "search"],
   ["micIcon", "mic"], ["helperIcon", "help"], ["bannerIcon", "alert"],
   ["cartIcon", "cart"], ["reviewPayArrow", "chevronRight"], ["pdCloseIcon", "close"],
@@ -26,7 +26,7 @@ function setIcon(id, kind) {
   ["redFlagIcon", "pulse"], ["interactionIcon", "alert"],
   ["toastIcon", "check"], ["dispenseIcon", "pill"],
   ["aabIcon", "chat"], ["aabChevron", "chevronRight"], ["aiChatCloseIcon", "close"],
-  ["chatMicIcon", "mic"], ["chatSendIcon", "chevronRight"], ["careBackIcon", "chevronLeft"], ["aboutBackIcon", "chevronLeft"],
+  ["chatMicIcon", "mic"], ["chatSendIcon", "chevronRight"], ["aboutBackIcon", "chevronLeft"],
 ].forEach(([id, kind]) => setIcon(id, kind));
 
 // ============================================================
@@ -594,8 +594,6 @@ function runSearch(query) {
   renderGrid(result.products);
 }
 
-document.getElementById("bannerCareBtn").addEventListener("click", () => openCareScreen());
-document.getElementById("noResultsCareBtn").addEventListener("click", () => openCareScreen());
 
 // Voice input — shared between the catalog search mic and the AI chat mic.
 const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -724,24 +722,6 @@ function addChatProductCards(products) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-function addNearbyCareCard() {
-  const card = document.createElement("div");
-  card.className = "chat-care-card";
-  card.innerHTML = `
-    <div class="cc-icon-wrap">${iconSvg("pin")}</div>
-    <div class="cc-text"></div>
-    <button class="cc-btn"></button>
-  `;
-  card.querySelector(".cc-text").textContent = t("chatCareLine");
-  card.querySelector(".cc-btn").textContent = t("chatCareBtn");
-  card.querySelector(".cc-btn").addEventListener("click", () => {
-    closeAiChat();
-    openCareScreen();
-  });
-  chatLog.appendChild(card);
-  chatLog.scrollTop = chatLog.scrollHeight;
-}
-
 // ---- Assistant plumbing (the brain lives in assistant.js; this performs it) ----
 
 let assistantMemory = { lastProduct: null, lastList: [], pending: null };
@@ -846,7 +826,6 @@ function playAssistantResponse(resp) {
   const steps = [];
   resp.replies.forEach((r) => steps.push({ delay: Math.min(1000, 320 + r.text.length * 3), run: () => addChatMessage(r.text, r.kind) }));
   if (resp.products.length) steps.push({ delay: 300, run: () => addChatProductCards(resp.products) });
-  if (resp.care) steps.push({ delay: 300, run: addNearbyCareCard });
   if (resp.chips.length) steps.push({ delay: 200, run: () => addChatChips(resp.chips) });
 
   const go = (i) => {
@@ -899,64 +878,6 @@ aiChatOverlay.addEventListener("click", (e) => { if (e.target === aiChatOverlay)
 document.getElementById("chatSendBtn").addEventListener("click", () => handleChatSend(chatInput.value));
 chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") handleChatSend(chatInput.value); });
 
-// ============================================================
-// Nearby Care & Pharmacy directory
-// ============================================================
-// Real facility data for the area nearest this kiosk (Library & Active
-// Living Center at Afton Ridge, 6095 Glen Afton Blvd, Concord, NC 28027).
-// Names/addresses are proper nouns, so they're not run through t().
-
-const FACILITIES = {
-  er: [
-    { name: "Atrium Health Cabarrus Emergency Department", address: "920 Church St N, Concord, NC 28025", phone: "(704) 403-3000", hours: null, open24: true },
-    { name: "Atrium Health Concord Emergency Department", address: "5350 John Q Hammons Dr, Concord, NC 28027", phone: "(704) 403-3000", hours: null, open24: true },
-  ],
-  urgent: [
-    { name: "FastMed Urgent Care – Concord", address: "391 George W Liles Pkwy NW, Concord, NC 28027", phone: "(704) 886-1780", hours: "Mon–Fri 8am–8pm · Sat–Sun 8am–4pm", open24: false },
-  ],
-  pharmacy: [
-    { name: "CVS Pharmacy", address: "6150 Bayfield Pkwy, Concord, NC 28027", phone: "(704) 262-6081", hours: "Mon–Fri 9am–9pm · Sat–Sun 9am–6pm", open24: false },
-    { name: "Walgreens Pharmacy", address: "5230 Poplar Tent Rd, Concord, NC 28027", phone: "(704) 784-1977", hours: "Mon–Fri 9am–9pm · Sat 9am–6pm · Sun 10am–6pm", open24: false },
-  ],
-};
-
-const ES_DAYS = { Mon: "Lun", Fri: "Vie", Sat: "Sáb", Sun: "Dom" };
-function localHours(h) { return currentLang === "es" ? h.replace(/\b(Mon|Fri|Sat|Sun)\b/g, (d) => ES_DAYS[d]) : h; }
-
-function careCardHtml(f, kind) {
-  const emergencyClass = kind === "er" ? " emergency" : "";
-  const icon = kind === "pharmacy" ? "logo" : "building";
-  return `
-    <div class="care-card${emergencyClass}">
-      <div class="cc-icon">${iconSvg(icon)}</div>
-      <div class="cc-info">
-        <div class="cc-name">${f.name}</div>
-        <div class="cc-row"><strong>${t("careAddress")}:</strong> <a class="cc-link" href="https://maps.apple.com/?q=${encodeURIComponent(f.address)}" target="_blank" rel="noopener">${f.address}</a></div>
-        <div class="cc-row"><strong>${t("carePhone")}:</strong> <a class="cc-link" href="tel:+1${f.phone.replace(/\D/g, "")}">${f.phone}</a></div>
-        ${f.hours ? `<div class="cc-row"><strong>${t("careHours")}:</strong> ${localHours(f.hours)}</div>` : ""}
-        ${f.open24 ? `<span class="cc-open24">${t("careOpen24")}</span>` : ""}
-      </div>
-    </div>
-  `;
-}
-
-function renderCareScreen() {
-  const careBody = document.getElementById("careBody");
-  careBody.innerHTML = `
-    <div class="care-intro">${iconSvg("pin")}<div>${t("careIntro")}</div></div>
-    <div class="care-section-title emergency">${iconSvg("alert")}<span>${t("careEr")}</span></div>
-    ${FACILITIES.er.map((f) => careCardHtml(f, "er")).join("")}
-    <div class="care-section-title">${iconSvg("building")}<span>${t("careUrgentCare")}</span></div>
-    ${FACILITIES.urgent.map((f) => careCardHtml(f, "urgent")).join("")}
-    <div class="care-section-title">${iconSvg("logo")}<span>${t("carePharmacies")}</span></div>
-    ${FACILITIES.pharmacy.map((f) => careCardHtml(f, "pharmacy")).join("")}
-  `;
-}
-
-const careScreen = document.getElementById("careScreen");
-function openCareScreen() { renderCareScreen(); careScreen.classList.add("show"); }
-function closeCareScreen() { careScreen.classList.remove("show"); }
-document.getElementById("careBackBtn").addEventListener("click", closeCareScreen);
 
 // ============================================================
 // Symptom selector modal
@@ -1575,12 +1496,12 @@ function triggerEmergency(kind) {
   // Crisis gets the 988 line, poisoning gets Poison Control; everything else the standard 911 text.
   emergencyOverlay.querySelector("p").textContent = t(kind === "crisis" ? "crisisText" : kind === "poison" ? "poisonText" : "emergencyText");
   const erListEl = document.getElementById("emergencyErList");
-  erListEl.innerHTML = FACILITIES.er.map((f) => `
+  erListEl.innerHTML = `
     <div class="emergency-er-card">
-      <div class="er-name">${f.name}</div>
-      <div class="er-detail">${f.address} · ${f.phone}${f.open24 ? " · " + t("careOpen24") : ""}</div>
+      <div class="er-name">${KIOSK_SITE.name}</div>
+      <div class="er-detail">${KIOSK_SITE.address} · ${KIOSK_SITE.phone}</div>
     </div>
-  `).join("");
+  `;
   emergencyOverlay.classList.add("show");
 }
 document.getElementById("emergencyReset").addEventListener("click", () => {
@@ -1588,7 +1509,6 @@ document.getElementById("emergencyReset").addEventListener("click", () => {
   resetKiosk();
 });
 
-document.getElementById("callNurseBtn").addEventListener("click", openCareScreen);
 
 // ============================================================
 // Idle / attract loop + inactivity auto-reset
@@ -1694,7 +1614,6 @@ function resetKiosk() {
   closeProductModal();
   closeSymptomModal();
   closeAiChat();
-  closeCareScreen();
   langDropdown.classList.remove("show");
   a11yDropdown.classList.remove("show");
   emergencyOverlay.classList.remove("show");
@@ -1754,7 +1673,7 @@ document.getElementById("langEsBtn").addEventListener("click", () => { setLangua
 const ARIA_LABELS = {
   headerCartBtn: "ariaCart", langBtn: "ariaLanguage", a11yBtn: "ariaAccessibility", micBtn: "ariaVoice", helperBtn: "ariaHelper",
   productModalClose: "ariaClose", pdQtyMinus: "ariaQtyMinus", pdQtyPlus: "ariaQtyPlus", symptomModalClose: "ariaClose", aiChatClose: "ariaClose",
-  chatMicBtn: "ariaVoice", chatSendBtn: "ariaSend", careBackBtn: "ariaBack", checkoutBackBtn: "ariaBack", aboutBackBtn: "ariaBack", judgesClose: "ariaClose",
+  chatMicBtn: "ariaVoice", chatSendBtn: "ariaSend", checkoutBackBtn: "ariaBack", aboutBackBtn: "ariaBack", judgesClose: "ariaClose",
 };
 function applyAriaLabels() {
   Object.entries(ARIA_LABELS).forEach(([id, key]) => {
@@ -1778,7 +1697,6 @@ function setLanguage(lang) {
   renderFilterBar();
   updateCartFooter();
   renderScenarioBanners();
-  if (careScreen.classList.contains("show")) renderCareScreen();
   if (judgesOverlay.classList.contains("show")) { renderJudgesStockList(); updateJudgesToggleButtons(); }
   if (lastMode.type === "search") runSearch(lastMode.value);
   else selectCategory(lastMode.value);

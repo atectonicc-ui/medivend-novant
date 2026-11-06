@@ -61,4 +61,10 @@ check(!infant.products.length && /doctor|pediatrician/i.test(text(infant)), "inf
   check(/What's bothering/.test(text(ask("i feel like crap"))), "vague symptom");
   for (const q of ["i feel good", "im good"]) check(!/What's bothering/.test(text(ask(q))), `false vague: ${q}`);
 }
+{ // location: this hospital, never a directory of outside care
+  for (const q of ["where am i", "where is the nearest er", "nearest pharmacy", "donde estoy"]) check(/Rowan Medical Center/.test(text(ask(q))), `location: ${q}`);
+  const thermo = text(ask("do you have a thermometer"));
+  check(/front desk/.test(thermo) && !/:\s*$/.test(thermo) && !/nearby pharmacy/.test(thermo), "care reply still points to nearby care");
+  check(!/Sriansh/.test(text(ask("who made this"))), "credit");
+}
 console.log(`assistant: ${n} checks passed`);

@@ -5,6 +5,9 @@
 // medical text; the product modal shows a one-line note about this when
 // Spanish is selected.
 
+// Where this kiosk stands; the assistant and the emergency screen both use it.
+const KIOSK_SITE = { name: "Novant Health Rowan Medical Center", address: "612 Mocksville Ave, Salisbury, NC 28144", phone: "(704) 210-5000" };
+
 const CATEGORY_LABELS = {
   en: {
     all: "All Items",
@@ -35,7 +38,6 @@ const STRINGS = {
   en: {
     brandName: "MediVend Health Kiosk",
     brandSub: "24/7 Medical Supplies",
-    callNurse: "Nearby Care & Pharmacy",
     ddLanguage: "Language",
     ddAccessibility: "Accessibility",
     ddLargeText: "Larger Text",
@@ -73,8 +75,6 @@ const STRINGS = {
     factIngredient: "Active Ingredient",
     factUses: "Uses",
     bpBanner: "High blood pressure? Ask a doctor before using this.",
-    chatCareLine: "Pharmacies and care near this kiosk:",
-    chatCareBtn: "Nearby Care & Pharmacy",
     termsTitle: "Terms & Liability",
     termsAgreeCheckbox: "I have read and agree to the terms above",
     termsAgreeBtn: "Agree & Continue",
@@ -127,15 +127,6 @@ const STRINGS = {
     chatGreeting: "Hi, I'm the MediVend assistant. Tell me what's going on, ask about any item, compare products, or ask for first-aid steps — I also speak Spanish.",
     chatGreetingSub: "If this is a real emergency, tell me and I'll direct you to emergency services.",
     chatAdded: "Added",
-    careTitle: "Nearby Care & Pharmacy",
-    careIntro: "Locations nearest this kiosk (Library & Active Living Center at Afton Ridge, Concord, NC). For a real emergency, call 911 immediately.",
-    careEr: "Emergency Rooms",
-    careUrgentCare: "Urgent Care",
-    carePharmacies: "Pharmacies",
-    careOpen24: "Open 24 Hours",
-    careAddress: "Address",
-    careHours: "Hours",
-    carePhone: "Phone",
     ackKicker: "SAFETY WARNING",
     ackTitle: "This medicine can be dangerous if misused",
     ackIntro: "Read this before you add it to your order:",
@@ -165,7 +156,6 @@ const STRINGS = {
   es: {
     brandName: "Quiosco de Salud MediVend",
     brandSub: "Suministros Médicos 24/7",
-    callNurse: "Atención Cercana y Farmacia",
     ddLanguage: "Idioma",
     ddAccessibility: "Accesibilidad",
     ddLargeText: "Texto Más Grande",
@@ -203,8 +193,6 @@ const STRINGS = {
     factIngredient: "Ingrediente Activo",
     factUses: "Usos",
     bpBanner: "¿Presión alta? Consulte a un médico antes de usar esto.",
-    chatCareLine: "Farmacias y atención cerca de este quiosco:",
-    chatCareBtn: "Atención Cercana y Farmacia",
     termsTitle: "Términos y Responsabilidad",
     termsAgreeCheckbox: "He leído y acepto los términos anteriores",
     termsAgreeBtn: "Aceptar y Continuar",
@@ -257,15 +245,6 @@ const STRINGS = {
     chatGreeting: "Hola, soy el asistente de MediVend. Cuénteme qué le pasa, pregunte por cualquier artículo, compare productos, o pida pasos de primeros auxilios — también hablo inglés.",
     chatGreetingSub: "Si esto es una emergencia real, dígamelo y le dirigiré a servicios de emergencia.",
     chatAdded: "Agregado",
-    careTitle: "Atención Cercana y Farmacia",
-    careIntro: "Ubicaciones más cercanas a este quiosco (Biblioteca y Centro de Vida Activa en Afton Ridge, Concord, NC). Para una emergencia real, llame al 911 de inmediato.",
-    careEr: "Salas de Emergencia",
-    careUrgentCare: "Atención Urgente",
-    carePharmacies: "Farmacias",
-    careOpen24: "Abierto 24 Horas",
-    careAddress: "Dirección",
-    careHours: "Horario",
-    carePhone: "Teléfono",
     ackKicker: "ADVERTENCIA DE SEGURIDAD",
     ackTitle: "Este medicamento puede ser peligroso si se usa incorrectamente",
     ackIntro: "Lea esto antes de agregarlo a su pedido:",

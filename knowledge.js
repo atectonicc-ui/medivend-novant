@@ -578,16 +578,16 @@ const KIOSK_FAQ = [
     id: "maker",
     triggers: ["who made you", "who built you", "who made this", "who created", "who built this", "who designed", "creator", "developer", "who is chetan", "who is sriansh", "made by"],
     answer: {
-      en: "This kiosk was built by Chetan Nallapaneni and Sriansh Madari as a student-built demo of a 24/7 over-the-counter medical vending kiosk. It isn't a certified medical device or a licensed pharmacy system.",
-      es: "Este quiosco fue creado por Chetan Nallapaneni y Sriansh Madari como una demostración hecha por estudiantes de un quiosco médico de venta libre 24/7. No es un dispositivo médico certificado ni un sistema de farmacia con licencia.",
+      en: "This kiosk was built by Chetan Nallapaneni as a student-built demo of a 24/7 over-the-counter medical vending kiosk. It isn't a certified medical device or a licensed pharmacy system.",
+      es: "Este quiosco fue creado por Chetan Nallapaneni como una demostración hecha por estudiantes de un quiosco médico de venta libre 24/7. No es un dispositivo médico certificado ni un sistema de farmacia con licencia.",
     },
   },
   {
     id: "location",
-    triggers: ["where am i", "where is this kiosk", "kiosk location", "what is the address", "which library", "what city", "where is this"],
+    triggers: ["where am i", "where is this kiosk", "kiosk location", "what is the address", "which hospital", "what hospital", "where are we", "donde estoy", "where i am", "donde esta este quiosco", "que hospital es", "en que hospital", "what city", "where is this"],
     answer: {
-      en: "This kiosk is at the Library & Active Living Center at Afton Ridge, Concord, NC. For real, nearby options (ERs, urgent care, pharmacies) tap \"Nearby Care & Pharmacy\".",
-      es: "Este quiosco está en el Library & Active Living Center en Afton Ridge, Concord, NC. Para opciones reales cercanas (salas de emergencia, atención urgente, farmacias) toque \"Atención Cercana y Farmacia\".",
+      en: "This kiosk is at Novant Health Rowan Medical Center, 612 Mocksville Ave, Salisbury, NC 28144, (704) 210-5000. For anything urgent, tell the staff at the front desk or call 911.",
+      es: "Este quiosco está en Novant Health Rowan Medical Center, 612 Mocksville Ave, Salisbury, NC 28144, (704) 210-5000. Si es urgente, avise al personal de la recepción o llame al 911.",
     },
   },
   {

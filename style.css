@@ -51,10 +51,9 @@ html.a11y-large { font-size: 24px; }
 .kiosk.a11y-large .ai-assistant-banner { min-height: 116px; }
 
 .kiosk.a11y-large .lang-btn { min-height: 64px; }
-.kiosk.a11y-large .nr-care-btn { min-height: 72px; }
-.kiosk.a11y-large .search-banner .nr-care-btn { min-height: 64px; }
+
 .kiosk.a11y-large .chat-product-card .cp-add { min-height: 72px; }
-.kiosk.a11y-large .chat-care-card .cc-btn { min-height: 64px; }
+
 .kiosk.a11y-large .scenario-banner button { min-height: 56px; }
 .kiosk.a11y-large .done-now-btn { min-height: 88px; }
 .kiosk.a11y-large .judges-scenario-btn { min-height: 90px; }
@@ -289,28 +288,6 @@ button { font-family: inherit; }
 .chat-product-card .cp-add:active { transform: scale(0.95); }
 .chat-product-card .cp-add.added { background: var(--success); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25); }
 
-.chat-care-card {
-  display: flex; align-items: center; gap: 14px;
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 16px; padding: 14px 16px; margin-top: 4px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
-}
-.chat-care-card .cc-icon-wrap {
-  width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
-  background: var(--panel-2); color: var(--accent-2);
-  display: flex; align-items: center; justify-content: center;
-}
-.chat-care-card .cc-icon-wrap svg { width: 22px; height: 22px; }
-.chat-care-card .cc-text { flex: 1; font-size: 0.92rem; color: var(--text); font-weight: 600; }
-.chat-care-card .cc-btn {
-  flex-shrink: 0; min-height: 52px; padding: 0 16px; border-radius: 12px;
-  border: none; background: var(--accent); color: #fff;
-  font-weight: 800; font-size: 0.88rem; cursor: pointer;
-  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
-  transition: transform 0.1s;
-}
-.chat-care-card .cc-btn:active { transform: scale(0.95); }
-
 .chat-input-row {
   flex-shrink: 0;
   display: flex; gap: 12px; align-items: center;
@@ -326,54 +303,7 @@ button { font-family: inherit; }
 }
 .chat-input:focus { border-color: var(--accent); }
 
-
 /* ---------- Nearby Care directory screen ---------- */
-
-.care-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 55;
-  background: var(--bg);
-  display: none;
-  flex-direction: column;
-}
-.care-screen.show { display: flex; }
-
-.care-body { flex: 1; min-height: 0; overflow-y: auto; padding: 24px 24px 40px; }
-
-.care-intro {
-  display: flex; gap: 14px; align-items: flex-start;
-  background: var(--panel-2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px 20px; margin-bottom: 26px;
-  font-size: 0.98rem; line-height: 1.5; color: var(--muted);
-}
-.care-intro svg { width: 24px; height: 24px; flex-shrink: 0; color: var(--accent-2); }
-.care-intro strong { color: var(--text); }
-
-.care-section-title {
-  font-size: 1.15rem; font-weight: 800; margin: 26px 0 14px;
-  display: flex; align-items: center; gap: 10px;
-}
-.care-section-title:first-child { margin-top: 0; }
-.care-section-title svg { width: 24px; height: 24px; color: var(--accent-2); }
-.care-section-title.emergency svg { color: var(--danger); }
-
-.care-card .cc-icon {
-  width: 60px; height: 60px; border-radius: 14px; flex-shrink: 0;
-  background: var(--panel-2); color: var(--accent-2);
-  display: flex; align-items: center; justify-content: center;
-}
-.care-card.emergency .cc-icon { background: var(--danger-bg); color: var(--danger); }
-.care-card .cc-icon svg { width: 28px; height: 28px; }
-.care-card .cc-info { flex: 1; }
-.care-card .cc-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
-.care-card .cc-row { font-size: 0.95rem; color: var(--muted); margin-top: 3px; }
-.care-card .cc-row strong { color: var(--text); }
-.care-card .cc-open24 {
-  display: inline-block; margin-top: 8px; font-size: 0.78rem; font-weight: 800;
-  color: var(--success); background: var(--success-bg); border: 1px solid var(--success-border);
-  padding: 4px 10px; border-radius: 8px;
-}
 
 .no-results {
   display: none;
@@ -386,21 +316,6 @@ button { font-family: inherit; }
 }
 
 .no-results .nr-title { font-size: 1.3rem; font-weight: 700; color: var(--text); }
-
-.nr-care-btn {
-  margin-top: 16px;
-  min-height: 60px;
-  padding: 0 22px;
-  border-radius: 30px;
-  border: none;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.95rem;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-}
-.search-banner .nr-care-btn { margin-top: 10px; min-height: 52px; padding: 0 18px; font-size: 0.85rem; }
 
 /* ---------- Product grid ---------- */
 
@@ -1109,31 +1024,19 @@ button { font-family: inherit; }
 .header-dropdown.show { display: flex; transform-origin: top right; animation: dropIn 0.25s var(--ease-out) both; }
 .modal-overlay.show { display: flex; animation: fadeIn 0.25s ease both; }
 .modal-overlay.show .modal-sheet { animation: sheetUp 0.42s var(--ease-out) both; }
-.checkout-screen.show, .care-screen.show { animation: slideInRight 0.4s var(--ease-out) both; }
+.checkout-screen.show { animation: slideInRight 0.4s var(--ease-out) both; }
 .judges-overlay.show { display: flex; animation: dropIn 0.3s var(--ease-out) both; }
 .dispense-screen.show { display: flex; animation: zoomIn 0.4s var(--ease-out) both; }
 .checkout-step.active { display: flex; animation: slideInRight 0.4s var(--ease-out) both; }
 .step-dot.active { background: var(--accent); width: 28px; border-radius: 6px; animation: dotGrow 0.4s var(--ease-out); }
-.care-card {
-  display: flex;
-  gap: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
-  animation: riseIn 0.5s var(--ease-out) backwards;
-}
-.care-card:nth-of-type(2) { animation-delay: 0.06s; }
-.care-card:nth-of-type(3) { animation-delay: 0.12s; }
+
 .review-item, .interaction-card { animation: riseIn 0.45s var(--ease-out) backwards; }
 .review-item:nth-child(2) { animation-delay: 0.05s; }
 .review-item:nth-child(3) { animation-delay: 0.1s; }
 .summary-card { margin-top: 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 20px; animation: riseIn 0.5s var(--ease-out) 0.12s backwards; }
 
 /* ---- Chat ---- */
-.chat-msg, .chat-product-card, .chat-care-card { animation: msgIn 0.4s var(--ease-out) backwards; }
+.chat-msg, .chat-product-card { animation: msgIn 0.4s var(--ease-out) backwards; }
 .chat-msg.typing { display: flex; gap: 6px; align-items: center; padding: 16px 20px; align-self: flex-start; }
 .chat-msg.typing span {
   width: 10px;
@@ -1677,7 +1580,7 @@ button { font-family: inherit; }
 .checkout-head .step-dot.active { background: #fff; }
 .checkout-head .step-dot.done { background: #86efac; }
 .checkout-footer { flex-shrink: 0; padding: 20px 28px 34px; border-top: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(16px); box-shadow: 0 -16px 40px -16px rgba(15, 23, 42, 0.18); }
-.review-item, .summary-card, .care-card, .terms-box {
+.review-item, .summary-card, .terms-box {
   border-radius: 22px;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   box-shadow: var(--shadow-1);
@@ -1722,8 +1625,8 @@ button { font-family: inherit; }
 /* ---- Chat ---- */
 
 .chat-msg.user { align-self: flex-end; color: #fff; font-weight: 600; border-bottom-right-radius: 6px; background: var(--cta-grad); box-shadow: var(--glow); }
-.chat-product-card, .chat-care-card { border-radius: 22px; box-shadow: var(--shadow-1); }
-.cp-add, .cc-btn { background: var(--cta-grad); border-radius: 16px; }
+.chat-product-card { border-radius: 22px; box-shadow: var(--shadow-1); }
+.cp-add { background: var(--cta-grad); border-radius: 16px; }
 
 /* ---- Idle ---- */
 .idle-title {
@@ -1940,24 +1843,7 @@ button { font-family: inherit; }
 .header-clock { display: flex; align-items: center; font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; font-size: 1.15rem; gap: 0; }
 .header-clock svg { width: 22px; height: 22px; color: rgba(255, 255, 255, 0.75); display: none; }
 .header-center { display: flex; align-items: center; margin-right: 0; gap: 12px; }
-.emergency-call-btn {
-  display: flex;
-  align-items: center;
-  border-radius: 34px;
-  font-weight: 800;
-  cursor: pointer;
-  background: linear-gradient(135deg, #F04438, #D92D20);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-  box-shadow: 0 10px 24px -6px rgba(217, 45, 32, 0.7);
-  text-align: left;
-  line-height: 1.15;
-  padding: 0 16px;
-  font-size: 0.86rem;
-  gap: 8px;
-  min-height: 60px;
-}
-.emergency-call-btn svg { width: 22px; height: 22px; }
+
 .header-right { display: flex; align-items: center; position: relative; gap: 10px; }
 .header-icon-btn {
   border-radius: 16px;
@@ -1995,7 +1881,7 @@ button { font-family: inherit; }
 .kiosk.a11y-large .header-brand .brand-name { white-space: normal; font-size: 1rem; line-height: 1.1; }
 .kiosk.a11y-large .header-brand .brand-sub { display: none; }
 .kiosk.a11y-large .header-clock { font-size: 0.95rem; }
-.kiosk.a11y-large .emergency-call-btn { min-height: 80px; font-size: 0.72rem; padding: 0 12px; }
+
 .kiosk.a11y-large .judges-btn { font-size: 0.75rem; padding: 0 10px; }
 .kiosk.a11y-large .header-icon-btn { width: 66px; height: 66px; }
 
@@ -2096,7 +1982,7 @@ button { font-family: inherit; }
 .kiosk.high-contrast input::placeholder { color: var(--muted); opacity: 1; }
 
 /* backgrounds: flat, no gradients or decorative glows */
-.kiosk.high-contrast .catalog-scroll, .kiosk.high-contrast .modal-sheet, .kiosk.high-contrast .checkout-screen, .kiosk.high-contrast .care-screen, .kiosk.high-contrast .dispense-screen, .kiosk.high-contrast .judges-overlay { background: var(--bg); }
+.kiosk.high-contrast .catalog-scroll, .kiosk.high-contrast .modal-sheet, .kiosk.high-contrast .checkout-screen, .kiosk.high-contrast .dispense-screen, .kiosk.high-contrast .judges-overlay { background: var(--bg); }
 .kiosk.high-contrast .idle-overlay { background: var(--bg); }
 .kiosk.high-contrast .idle-overlay::after, .kiosk.high-contrast .kiosk-header::after, .kiosk.high-contrast .idle-cta::after, .kiosk.high-contrast .ai-assistant-banner::after, .kiosk.high-contrast .idle-logo::after { display: none; }
 .kiosk.high-contrast .idle-title { background: none; -webkit-text-fill-color: var(--text); color: var(--text); }
@@ -2110,7 +1996,7 @@ button { font-family: inherit; }
 .kiosk.high-contrast .header-logo { background: #000; border: 3px solid #fff; }
 .kiosk.high-contrast .header-icon-btn { background: #000; border: 3px solid #fff; color: #fff; }
 .kiosk.high-contrast .judges-btn { background: #000; border: 3px solid #FFD400; color: #FFD400; }
-.kiosk.high-contrast .emergency-call-btn { background: #B00020; border: 3px solid #fff; color: #fff; }
+
 .kiosk.high-contrast .header-cart-badge { background: #FFD400; color: #000; border: 2px solid #000; }
 .kiosk.high-contrast .header-dropdown { border: 4px solid var(--border); background: var(--panel); }
 
@@ -2128,7 +2014,7 @@ button { font-family: inherit; }
 .kiosk.high-contrast .ai-assistant-banner .aab-icon { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
 .kiosk.high-contrast .ai-assistant-banner .aab-title, .kiosk.high-contrast .ai-assistant-banner .aab-sub, .kiosk.high-contrast .ai-assistant-banner svg { color: var(--on-accent); }
 
-.kiosk.high-contrast .add-btn, .kiosk.high-contrast .review-pay-btn, .kiosk.high-contrast .primary-btn, .kiosk.high-contrast .idle-cta, .kiosk.high-contrast .nr-care-btn, .kiosk.high-contrast .cp-add, .kiosk.high-contrast .cc-btn, .kiosk.high-contrast .chat-msg.user, .kiosk.high-contrast .di-dispense-btn.standard { background: var(--accent); color: var(--on-accent); border: 3px solid var(--border); }
+.kiosk.high-contrast .add-btn, .kiosk.high-contrast .review-pay-btn, .kiosk.high-contrast .primary-btn, .kiosk.high-contrast .idle-cta, .kiosk.high-contrast .cp-add, .kiosk.high-contrast .chat-msg.user, .kiosk.high-contrast .di-dispense-btn.standard { background: var(--accent); color: var(--on-accent); border: 3px solid var(--border); }
 .kiosk.high-contrast .add-btn.added, .kiosk.high-contrast .cp-add.added { background: var(--success); color: var(--bg); }
 .kiosk.high-contrast .add-btn:disabled, .kiosk.high-contrast .review-pay-btn:disabled, .kiosk.high-contrast .primary-btn:disabled, .kiosk.high-contrast .primary-btn.locked, .kiosk.high-contrast .primary-btn.danger.locked, .kiosk.high-contrast .ack-btn.confirm.locked { background: var(--panel); color: var(--muted); border: 3px dashed var(--border); }
 .kiosk.high-contrast .primary-btn.ghost, .kiosk.high-contrast .ack-btn.ghost { background: var(--panel); color: var(--text); border: 3px solid var(--border); }
@@ -2176,8 +2062,8 @@ button { font-family: inherit; }
 .kiosk.high-contrast .checkout-head .step-dot.active { background: #fff; }
 .kiosk.high-contrast .checkout-head .step-dot.done { background: #5CFF8A; border-color: #5CFF8A; }
 .kiosk.high-contrast .checkout-footer { background: var(--panel); border-top: 4px solid var(--border); }
-.kiosk.high-contrast .review-item, .kiosk.high-contrast .summary-card, .kiosk.high-contrast .care-card, .kiosk.high-contrast .terms-box, .kiosk.high-contrast .interaction-card, .kiosk.high-contrast .receipt-card, .kiosk.high-contrast .safety-card, .kiosk.high-contrast .pay-method-badge { background: var(--panel); border: 3px solid var(--border); color: var(--text); }
-.kiosk.high-contrast .care-card.emergency { border-color: var(--danger); }
+.kiosk.high-contrast .review-item, .kiosk.high-contrast .summary-card, .kiosk.high-contrast .terms-box, .kiosk.high-contrast .interaction-card, .kiosk.high-contrast .receipt-card, .kiosk.high-contrast .safety-card, .kiosk.high-contrast .pay-method-badge { background: var(--panel); border: 3px solid var(--border); color: var(--text); }
+
 .kiosk.high-contrast .pay-icon-ring, .kiosk.high-contrast .verify-icon, .kiosk.high-contrast .interaction-icon, .kiosk.high-contrast .dispense-anim { background: var(--panel); border: 4px solid var(--border); color: var(--text); }
 .kiosk.high-contrast .verify-icon.verified, .kiosk.high-contrast .dispense-anim:not(.working):not(.failed) { border-color: var(--success); color: var(--success); }
 .kiosk.high-contrast .dispense-anim.failed { border-color: var(--danger); color: var(--danger); }
@@ -2185,7 +2071,7 @@ button { font-family: inherit; }
 .kiosk.high-contrast .done-now-btn { border: 3px solid var(--border); background: var(--panel); color: var(--text); }
 
 /* chat */
-.kiosk.high-contrast .chat-msg, .kiosk.high-contrast .chat-product-card, .kiosk.high-contrast .chat-care-card { background: var(--panel); color: var(--text); border: 3px solid var(--border); }
+.kiosk.high-contrast .chat-msg, .kiosk.high-contrast .chat-product-card { background: var(--panel); color: var(--text); border: 3px solid var(--border); }
 .kiosk.high-contrast .chat-msg.user { background: var(--accent); color: var(--on-accent); }
 .kiosk.high-contrast .chat-msg.system { border: none; color: var(--text); }
 .kiosk.high-contrast .chat-msg.warn { border-color: var(--warn); color: var(--text); }
@@ -2278,7 +2164,6 @@ button { font-family: inherit; }
 .warn-list li.key { font-weight: 800; }
 .receipt-how { margin: -4px 0 12px; font-size: 0.85rem; line-height: 1.45; color: var(--muted); text-align: left; }
 .qr-url { margin-top: 8px; font-size: 0.78rem; font-weight: 700; word-break: break-all; display: block; pointer-events: none; color: inherit; text-decoration: none; }
-.cc-link { color: inherit; text-decoration: none; pointer-events: none; } /* the kiosk can't dial or open maps */
 .ri-stepper { display: flex; align-items: center; gap: 10px; }
 .ri-step { width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel); color: var(--text); display: flex; align-items: center; justify-content: center; }
 .ri-step:disabled { opacity: 0.35; }

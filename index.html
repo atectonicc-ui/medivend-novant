@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="referrer" content="no-referrer" />
 <script src="boot.js"></script>
-<link rel="stylesheet" href="style.css?v=n1" />
+<link rel="stylesheet" href="style.css?v=n2" />
 </head>
 <body>
 
@@ -27,10 +27,6 @@
 
         <div class="header-center">
           <div class="header-clock" id="headerClock"></div>
-          <button class="emergency-call-btn" id="callNurseBtn">
-            <span id="callNurseIcon"></span>
-            <span data-i18n="callNurse">Nearby Care &amp; Pharmacy</span>
-          </button>
         </div>
 
         <div class="header-right">
@@ -101,7 +97,7 @@
         <div class="search-bar-wrap">
           <div class="search-field">
             <span id="searchIcon"></span>
-            <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search by item or symptom (e.g. &quot;Headache&quot;, &quot;Bandages&quot;, &quot;Burn relief&quot;)" autocomplete="off" />
+            <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search by item or symptom (e.g. &quot;Bandages&quot;, &quot;Too loud&quot;, &quot;Phone charger&quot;)" autocomplete="off" />
           </div>
           <button class="icon-square-btn mic" id="micBtn"><span id="micIcon"></span></button>
           <button class="icon-square-btn helper" id="helperBtn"><span id="helperIcon"></span></button>
@@ -120,14 +116,12 @@
           <span id="bannerIcon"></span>
           <div>
             <div id="bannerText"></div>
-            <button class="nr-care-btn" id="bannerCareBtn" data-i18n="chatCareBtn">Nearby Care &amp; Pharmacy</button>
           </div>
         </div>
 
         <div class="no-results" id="noResults">
           <div class="nr-title" data-i18n="noResultsTitle">No matching items</div>
           <div data-i18n="noResultsSub">Try browsing a category above, or ask "Unsure what you need?" for help.</div>
-          <button class="nr-care-btn" id="noResultsCareBtn" data-i18n="chatCareBtn">Nearby Care &amp; Pharmacy</button>
         </div>
 
         <div class="product-grid" id="productGrid"></div>
@@ -201,15 +195,6 @@
             <button class="icon-square-btn" id="chatSendBtn" style="background:var(--accent);color:#fff;border-color:var(--accent);"><span id="chatSendIcon"></span></button>
           </div>
         </div>
-      </div>
-
-      <!-- ===== Nearby Care directory screen ===== -->
-      <div class="care-screen" id="careScreen">
-        <div class="checkout-head">
-          <button class="checkout-back-btn" id="careBackBtn"><span id="careBackIcon"></span></button>
-          <span class="co-title" data-i18n="careTitle">Nearby Care &amp; Pharmacy</span>
-        </div>
-        <div class="care-body" id="careBody"></div>
       </div>
 
       <!-- ===== Checkout screen ===== -->
@@ -466,19 +451,19 @@ This is a student-built demo kiosk (MediVend Health Kiosk) and is not a certifie
   </div>
 </div>
 
-<script src="vendor/qrcode.js?v=n1"></script>
-<script src="qr.js?v=n1"></script>
-<script src="rules.js?v=n1"></script>
-<script src="icons.js?v=n1"></script>
-<script src="products.js?v=n1"></script>
-<script src="products-es.js?v=n1"></script>
-<script src="product-art.js?v=n1"></script>
-<script src="safety.js?v=n1"></script>
-<script src="ai.js?v=n1"></script>
-<script src="med-qa.js?v=n1"></script>
-<script src="i18n.js?v=n1"></script>
-<script src="knowledge.js?v=n1"></script>
-<script src="assistant.js?v=n1"></script>
-<script src="kiosk.js?v=n1"></script>
+<script src="vendor/qrcode.js?v=n2"></script>
+<script src="qr.js?v=n2"></script>
+<script src="rules.js?v=n2"></script>
+<script src="icons.js?v=n2"></script>
+<script src="products.js?v=n2"></script>
+<script src="products-es.js?v=n2"></script>
+<script src="product-art.js?v=n2"></script>
+<script src="safety.js?v=n2"></script>
+<script src="ai.js?v=n2"></script>
+<script src="med-qa.js?v=n2"></script>
+<script src="i18n.js?v=n2"></script>
+<script src="knowledge.js?v=n2"></script>
+<script src="assistant.js?v=n2"></script>
+<script src="kiosk.js?v=n2"></script>
 </body>
 </html>
