@@ -576,10 +576,10 @@ const KIOSK_FAQ = [
   },
   {
     id: "maker",
-    triggers: ["who made you", "who built you", "who made this", "who created", "who built this", "who designed", "creator", "developer", "who is chetan", "who is sriansh", "made by"],
+    triggers: ["who made you", "who built you", "who made this", "who created", "who built this", "who designed", "creator", "developer", "made by"],
     answer: {
-      en: "This kiosk was built by Chetan Nallapaneni as a student-built demo of a 24/7 over-the-counter medical vending kiosk. It isn't a certified medical device or a licensed pharmacy system.",
-      es: "Este quiosco fue creado por Chetan Nallapaneni como una demostración hecha por estudiantes de un quiosco médico de venta libre 24/7. No es un dispositivo médico certificado ni un sistema de farmacia con licencia.",
+      en: "This kiosk is a student-built demo of a 24/7 over-the-counter medical vending kiosk. It isn't a certified medical device or a licensed pharmacy system.",
+      es: "Este quiosco es una demostración hecha por estudiantes de un quiosco médico de venta libre 24/7. No es un dispositivo médico certificado ni un sistema de farmacia con licencia.",
     },
   },
   {

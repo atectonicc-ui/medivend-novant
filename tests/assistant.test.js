@@ -65,6 +65,6 @@ check(!infant.products.length && /doctor|pediatrician/i.test(text(infant)), "inf
   for (const q of ["where am i", "where is the nearest er", "nearest pharmacy", "donde estoy"]) check(/Rowan Medical Center/.test(text(ask(q))), `location: ${q}`);
   const thermo = text(ask("do you have a thermometer"));
   check(/front desk/.test(thermo) && !/:\s*$/.test(thermo) && !/nearby pharmacy/.test(thermo), "care reply still points to nearby care");
-  check(!/Sriansh/.test(text(ask("who made this"))), "credit");
+  check(!/Chetan|Sriansh/.test(text(ask("who made this"))), "credit");
 }
 console.log(`assistant: ${n} checks passed`);
